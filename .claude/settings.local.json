@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__playwright_navigate",
+      "mcp__playwright__playwright_screenshot",
+      "mcp__playwright__playwright_get_visible_html",
+      "mcp__playwright__playwright_evaluate",
+      "mcp__playwright__playwright_console_logs",
+      "Bash(mkdir:*)",
+      "mcp__playwright__playwright_click",
+      "mcp__playwright__playwright_close",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
