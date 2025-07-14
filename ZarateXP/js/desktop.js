@@ -45,8 +45,8 @@ export class DesktopManager {
                 }
             });
             
-            // Drag handlers
-            this.setupIconDrag(icon);
+            // Drag handlers - DISABLED for fixed icons
+            // this.setupIconDrag(icon);
         });
         
         // Desktop click to clear selection

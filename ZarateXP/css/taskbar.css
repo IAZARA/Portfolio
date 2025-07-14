@@ -57,6 +57,8 @@
     gap: 3px;
     padding: 0 5px;
     height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 /* Taskbar Program Button */

@@ -18,7 +18,7 @@ export class AppManager {
         this.registerApp({
             id: 'about-me',
             name: 'About Me',
-            icon: './images/icons/user.png',
+            icon: './assets/images/user.png',
             category: 'system',
             description: 'Learn about Zarate',
             handler: () => this.openAboutMe()
@@ -26,7 +26,7 @@ export class AppManager {
         
         // My Projects
         this.registerApp({
-            id: 'my-projects',
+            id: 'projects',
             name: 'My Projects',
             icon: './images/icons/folder-projects.png',
             category: 'documents',
@@ -217,6 +217,11 @@ export class AppManager {
         }
     }
     
+    // Alias for compatibility with desktop.js and startMenu.js
+    openApp(appId) {
+        return this.launchApp(appId);
+    }
+    
     closeApp(appId) {
         this.runningApps.delete(appId);
     }
@@ -318,7 +323,7 @@ export class AppManager {
             </div>
         `;
         
-        return this.createWindow('my-projects', 'My Projects', content, {
+        return this.createWindow('projects', 'My Projects', content, {
             width: 800,
             height: 600
         });

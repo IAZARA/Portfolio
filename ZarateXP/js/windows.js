@@ -5,6 +5,8 @@ export class WindowManager {
         this.activeWindow = null;
         this.zIndexCounter = 100;
         this.windowsContainer = document.getElementById('windows-container');
+        this.taskbarManager = null; // Se establecerá desde main.js
+        this.soundManager = null; // Se establecerá desde main.js
     }
     
     init() {
@@ -111,13 +113,15 @@ export class WindowManager {
         this.focusWindow(id);
         
         // Add to taskbar
-        if (window.zarateXP?.taskbarManager) {
-            window.zarateXP.taskbarManager.addProgram(id, title, icon);
+        const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
+        if (taskbarManager) {
+            taskbarManager.addProgram(id, title, icon);
         }
         
         // Play sound
-        if (window.zarateXP?.soundManager) {
-            window.zarateXP.soundManager.play('maximize');
+        const soundManager = this.soundManager || window.zarateXP?.soundManager;
+        if (soundManager) {
+            soundManager.play('maximize');
         }
         
         // Animate window appearance
@@ -306,46 +310,63 @@ export class WindowManager {
         this.activeWindow = windowId;
         
         // Update taskbar
-        if (window.zarateXP?.taskbarManager) {
-            window.zarateXP.taskbarManager.setActiveProgram(windowId);
+        const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
+        if (taskbarManager) {
+            taskbarManager.setActiveProgram(windowId);
         }
     }
     
     minimizeWindow(windowId) {
         const windowData = this.windows.get(windowId);
-        if (!windowData) return;
+        if (!windowData || windowData.isMinimized) return;
         
         windowData.isMinimized = true;
         windowData.element.style.display = 'none';
         
+        // If this was the active window, focus the next available window
+        if (this.activeWindow === windowId) {
+            this.activeWindow = null;
+            // Find next available window
+            for (const [id, data] of this.windows) {
+                if (id !== windowId && !data.isMinimized) {
+                    this.focusWindow(id);
+                    break;
+                }
+            }
+        }
+        
         // Update taskbar
-        if (window.zarateXP?.taskbarManager) {
-            window.zarateXP.taskbarManager.minimizeProgram(windowId);
+        const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
+        if (taskbarManager) {
+            taskbarManager.minimizeProgram(windowId);
         }
         
         // Play sound
-        if (window.zarateXP?.soundManager) {
-            window.zarateXP.soundManager.play('minimize');
+        const soundManager = this.soundManager || window.zarateXP?.soundManager;
+        if (soundManager) {
+            soundManager.play('minimize');
         }
     }
     
     restoreWindow(windowId) {
         const windowData = this.windows.get(windowId);
-        if (!windowData) return;
+        if (!windowData || !windowData.isMinimized) return;
         
         windowData.isMinimized = false;
-        windowData.element.style.display = 'block';
+        windowData.element.style.display = 'flex';
         
         this.focusWindow(windowId);
         
         // Update taskbar
-        if (window.zarateXP?.taskbarManager) {
-            window.zarateXP.taskbarManager.restoreProgram(windowId);
+        const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
+        if (taskbarManager) {
+            taskbarManager.restoreProgram(windowId);
         }
         
         // Play sound
-        if (window.zarateXP?.soundManager) {
-            window.zarateXP.soundManager.play('maximize');
+        const soundManager = this.soundManager || window.zarateXP?.soundManager;
+        if (soundManager) {
+            soundManager.play('maximize');
         }
     }
     
@@ -387,8 +408,9 @@ export class WindowManager {
         windowElement.classList.add('maximized');
         
         // Play sound
-        if (window.zarateXP?.soundManager) {
-            window.zarateXP.soundManager.play('maximize');
+        const soundManager = this.soundManager || window.zarateXP?.soundManager;
+        if (soundManager) {
+            soundManager.play('maximize');
         }
     }
     
@@ -425,13 +447,15 @@ export class WindowManager {
             this.windows.delete(windowId);
             
             // Remove from taskbar
-            if (window.zarateXP?.taskbarManager) {
-                window.zarateXP.taskbarManager.removeProgram(windowId);
+            const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
+            if (taskbarManager) {
+                taskbarManager.removeProgram(windowId);
             }
             
             // Play sound
-            if (window.zarateXP?.soundManager) {
-                window.zarateXP.soundManager.play('error');
+            const soundManager = this.soundManager || window.zarateXP?.soundManager;
+            if (soundManager) {
+                soundManager.play('error');
             }
         });
     }

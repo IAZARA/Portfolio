@@ -9,6 +9,9 @@ import { AppManager } from './apps.js';
 
 class ZarateXP {
     constructor() {
+        // Make ZarateXP globally available immediately
+        window.zarateXP = this;
+        
         this.bootManager = new BootManager();
         this.desktopManager = new DesktopManager();
         this.windowManager = new WindowManager();
@@ -21,18 +24,13 @@ class ZarateXP {
     }
     
     init() {
-        console.log('ZarateXP initializing...');
-        
         // Set viewport height for mobile
         this.setViewportHeight();
         window.addEventListener('resize', () => this.setViewportHeight());
         window.addEventListener('orientationchange', () => this.setViewportHeight());
         
-        console.log('Starting boot manager...');
-        
         // Initialize boot sequence
         this.bootManager.startBoot().then(() => {
-            console.log('Boot complete, initializing system...');
             this.initializeSystem();
         }).catch(error => {
             console.error('Boot error:', error);
@@ -65,6 +63,10 @@ class ZarateXP {
         this.taskbarManager.init();
         this.startMenuManager.init();
         this.appManager.init();
+        
+        // Establecer referencias cruzadas entre managers
+        this.windowManager.taskbarManager = this.taskbarManager;
+        this.windowManager.soundManager = this.soundManager;
         
         // Set up global event listeners
         this.setupGlobalListeners();
@@ -156,8 +158,7 @@ class ZarateXP {
 
 // Initialize the application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, creating ZarateXP instance...');
-    window.zarateXP = new ZarateXP();
+    new ZarateXP(); // window.zarateXP is already set in constructor
 });
 
 // Export for use in other modules
