@@ -16,36 +16,49 @@
 /* Start Button */
 .start-button {
     height: 100%;
-    padding: 0 20px;
-    background: linear-gradient(to bottom, #5AAC56 0%, #4E9C4A 3%, #3D8B3D 100%);
-    border: none;
-    border-right: 1px solid #0E3A8E;
+    padding: 0 15px 0 10px; /* Ajustado para el nuevo diseño */
+    background: linear-gradient(to bottom, #78B33E 0%, #619C32 50%, #518C2A 100%); /* Degradado XP */
+    border-top: 1px solid #C6D79C; /* Borde superior claro */
+    border-left: 1px solid #C6D79C; /* Borde izquierdo claro */
+    border-right: 1px solid #3168D5; /* Borde derecho oscuro */
+    border-bottom: 1px solid #3168D5; /* Borde inferior oscuro */
+    border-radius: 3px; /* Ligeramente redondeado */
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px; /* Espacio entre icono y texto */
     color: white;
     font-weight: bold;
-    font-size: 11px;
-    font-style: italic;
+    font-size: 14px; /* Tamaño de fuente más grande */
+    font-family: 'Tahoma', sans-serif; /* Fuente de XP */
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     position: relative;
     transition: all 0.1s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.2); /* Sombra interna y externa */
 }
 
 .start-button:hover {
-    background: linear-gradient(to bottom, #6BBC66 0%, #5EAC5A 3%, #4D9B4D 100%);
+    background: linear-gradient(to bottom, #88C34E 0%, #71AC42 50%, #619C32 100%); /* Degradado hover */
+    border-top: 1px solid #D6E7AC;
+    border-left: 1px solid #D6E7AC;
+    border-right: 1px solid #4178E5;
+    border-bottom: 1px solid #4178E5;
 }
 
 .start-button:active,
 .start-button.active {
-    background: linear-gradient(to bottom, #3D8B3D 0%, #4E9C4A 3%, #5AAC56 100%);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom, #518C2A 0%, #619C32 50%, #78B33E 100%); /* Degradado active */
+    border-top: 1px solid #3168D5;
+    border-left: 1px solid #3168D5;
+    border-right: 1px solid #C6D79C;
+    border-bottom: 1px solid #C6D79C;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); /* Sombra interna para presionado */
+    padding: 1px 14px 0 11px; /* Efecto de "presionado" */
 }
 
 .start-button img {
-    width: 20px;
-    height: 20px;
+    width: 24px; /* Tamaño del icono más grande */
+    height: 24px;
     filter: drop-shadow(0 0 1px rgba(0,0,0,0.5));
 }
 

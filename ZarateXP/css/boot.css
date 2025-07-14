@@ -79,63 +79,38 @@
 .loading-bar {
     height: 100%;
     display: flex;
-    gap: 2px;
-    padding: 0 2px;
+    gap: 2px; /* Keep existing gap */
+    padding: 0 2px; /* Keep existing padding */
+    justify-content: flex-start; /* New: Align blocks to the start */
+    overflow: hidden; /* New: Hide overflowing content */
 }
 
 .loading-block {
-    width: 8px;
+    width: 15px; /* Modified: Fixed width for square appearance */
     height: 100%;
     background: #316AC5;
-    opacity: 0;
-    animation: loading-progress 1.2s ease-in-out infinite;
+    opacity: 1; /* Modified: Always visible */
+    animation: xp-loading-slide 2s linear infinite; /* Modified: New animation */
 }
 
-.loading-block:nth-child(1) { animation-delay: 0s; }
-.loading-block:nth-child(2) { animation-delay: 0.2s; }
-.loading-block:nth-child(3) { animation-delay: 0.4s; }
-.loading-block:nth-child(4) { animation-delay: 0.6s; }
-.loading-block:nth-child(5) { animation-delay: 0.8s; }
-.loading-block:nth-child(6) { animation-delay: 1.0s; }
-.loading-block:nth-child(7) { animation-delay: 1.2s; }
-.loading-block:nth-child(8) { animation-delay: 1.4s; }
-.loading-block:nth-child(9) { animation-delay: 1.6s; }
-.loading-block:nth-child(10) { animation-delay: 1.8s; }
-.loading-block:nth-child(11) { animation-delay: 2.0s; }
-.loading-block:nth-child(12) { animation-delay: 2.2s; }
-.loading-block:nth-child(13) { animation-delay: 2.4s; }
-.loading-block:nth-child(14) { animation-delay: 2.6s; }
-.loading-block:nth-child(15) { animation-delay: 2.8s; }
-.loading-block:nth-child(16) { animation-delay: 3.0s; }
-.loading-block:nth-child(17) { animation-delay: 3.2s; }
-.loading-block:nth-child(18) { animation-delay: 3.4s; }
-.loading-block:nth-child(19) { animation-delay: 3.6s; }
-.loading-block:nth-child(20) { animation-delay: 3.8s; }
-.loading-block:nth-child(21) { animation-delay: 4.0s; }
-.loading-block:nth-child(22) { animation-delay: 4.2s; }
-.loading-block:nth-child(23) { animation-delay: 4.4s; }
-.loading-block:nth-child(24) { animation-delay: 4.6s; }
-.loading-block:nth-child(25) { animation-delay: 4.8s; }
-.loading-block:nth-child(26) { animation-delay: 5.0s; }
-.loading-block:nth-child(27) { animation-delay: 5.2s; }
-.loading-block:nth-child(28) { animation-delay: 5.4s; }
-
-@keyframes loading-progress {
+@keyframes xp-loading-slide {
     0% {
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-    40% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0;
+        transform: translateX(-100%); /* Start off-screen to the left */
     }
     100% {
-        opacity: 0;
+        transform: translateX(calc(300px + 100%)); /* Move across the 300px container + its own width */
     }
+}
+
+/* Apply animation delays to each block using nth-child selectors */
+.loading-block:nth-child(1) {
+    animation-delay: 0s;
+}
+.loading-block:nth-child(2) {
+    animation-delay: 0.2s; /* Adjust delay for chasing effect */
+}
+.loading-block:nth-child(3) {
+    animation-delay: 0.4s; /* Adjust delay for chasing effect */
 }
 
 /* Boot Footer */
