@@ -109,7 +109,7 @@ export class StartMenuManager {
         const logOffBtn = document.getElementById('btn-log-off');
         if (logOffBtn) {
             logOffBtn.addEventListener('click', () => {
-                this.showLogOffDialog();
+                this.showLogOffDialog(false); // false = logout mode
             });
         }
         
@@ -117,7 +117,7 @@ export class StartMenuManager {
         const shutDownBtn = document.getElementById('btn-shut-down');
         if (shutDownBtn) {
             shutDownBtn.addEventListener('click', () => {
-                this.showLogOffDialog();
+                this.showLogOffDialog(true); // true = shutdown mode
             });
         }
     }
@@ -220,32 +220,98 @@ export class StartMenuManager {
         window.open(url, '_blank');
     }
     
-    showLogOffDialog() {
+    showLogOffDialog(isShutdown = false) {
         this.close();
         
         const dialog = document.getElementById('logoff-dialog-container');
+        const headerText = document.querySelector('.logoff-dialog-header-text');
+        const restartBtn = document.getElementById('logoff-restart-btn');
+        const shutdownBtn = document.getElementById('logoff-shutdown-btn');
+        
+        // Update dialog content based on action type
+        if (isShutdown) {
+            headerText.textContent = 'Apagar IaZarateXP';
+            // Show restart and shutdown buttons
+            restartBtn.style.display = 'flex';
+            shutdownBtn.style.display = 'flex';
+            
+            // Update first button for logout scenario
+            const firstBtnImg = restartBtn.querySelector('img');
+            const firstBtnText = restartBtn.querySelector('span');
+            firstBtnImg.src = 'assets/images/restart.png';
+            firstBtnImg.alt = 'Restart Icon';
+            firstBtnText.textContent = 'Restart';
+        } else {
+            headerText.textContent = 'Cerrar Sesión IaZarateXP';
+            // Show restart and logout buttons
+            restartBtn.style.display = 'flex';
+            shutdownBtn.style.display = 'flex';
+            
+            // Update first button for logout scenario
+            const firstBtnImg = restartBtn.querySelector('img');
+            const firstBtnText = restartBtn.querySelector('span');
+            firstBtnImg.src = 'assets/images/restart.png';
+            firstBtnImg.alt = 'Restart Icon';
+            firstBtnText.textContent = 'Restart';
+            
+            // Update second button for logout scenario
+            const secondBtnImg = shutdownBtn.querySelector('img');
+            const secondBtnText = shutdownBtn.querySelector('span');
+            secondBtnImg.src = 'images/icons/logout.png';
+            secondBtnImg.alt = 'Logout Icon';
+            secondBtnText.textContent = 'Cerrar Sesión';
+        }
+        
         dialog.classList.remove('logoff-dialog-hidden');
+        dialog.style.display = 'flex';
         
         // Setup dialog buttons
         const cancelBtn = document.getElementById('logoff-cancel-btn');
-        const logOffBtn = document.getElementById('logoff-log-off-btn');
-        const restartBtn = document.getElementById('logoff-switch-user-btn');
         
         cancelBtn.onclick = () => {
             dialog.classList.add('logoff-dialog-hidden');
-        };
-        
-        logOffBtn.onclick = () => {
-            if (window.zarateXP?.bootManager) {
-                window.zarateXP.bootManager.shutdown();
-            }
+            dialog.style.display = 'none';
         };
         
         restartBtn.onclick = () => {
-            if (window.zarateXP?.bootManager) {
-                window.zarateXP.bootManager.restart();
+            dialog.classList.add('logoff-dialog-hidden');
+            dialog.style.display = 'none';
+            this.showShutdownWindow();
+        };
+        
+        shutdownBtn.onclick = () => {
+            dialog.classList.add('logoff-dialog-hidden');
+            dialog.style.display = 'none';
+            if (isShutdown) {
+                this.showShutdownWindow();
+            } else {
+                this.showLogoffWindow();
             }
         };
+    }
+    
+    showShutdownWindow() {
+        const shutdownWindow = document.getElementById('shutdown-window-container');
+        shutdownWindow.classList.remove('shutdown-window-hidden');
+        shutdownWindow.style.display = 'flex';
+        
+        // Auto-close after 3 seconds (optional)
+        setTimeout(() => {
+            shutdownWindow.classList.add('shutdown-window-hidden');
+            shutdownWindow.style.display = 'none';
+        }, 3000);
+    }
+    
+    showLogoffWindow() {
+        const logoffWindow = document.getElementById('logoff-window-container');
+        logoffWindow.classList.remove('logoff-window-hidden');
+        logoffWindow.style.display = 'flex';
+        
+        // Auto-close after 3 seconds (optional)
+        setTimeout(() => {
+            logoffWindow.classList.add('logoff-window-hidden');
+            logoffWindow.style.display = 'none';
+        }, 3000);
     }
     
     animateMenuItems() {

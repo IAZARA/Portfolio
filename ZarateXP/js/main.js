@@ -62,7 +62,7 @@ class ZarateXP {
         this.windowManager.init();
         this.taskbarManager.init();
         this.startMenuManager.init();
-        this.appManager.init();
+        this.appManager.init(this.windowManager);
         
         // Establecer referencias cruzadas entre managers
         this.windowManager.taskbarManager = this.taskbarManager;

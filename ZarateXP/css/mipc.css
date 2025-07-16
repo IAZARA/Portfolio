@@ -1,0 +1,147 @@
+/* ============== ESTILOS ENCAPSULADOS PARA MI PC ============== */
+/* Usamos #mipc-window para asegurar que estos estilos solo se apliquen
+   a nuestra ventana y no sean sobreescritos por estilos globales. */
+
+#mipc-window .mipc-menu-bar {
+    display: flex;
+    padding: 2px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 11px;
+}
+#mipc-window .mipc-menu-bar span {
+    margin-right: 15px;
+}
+
+#mipc-window .mipc-function-bar {
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+}
+#mipc-window .mipc-function-bar button {
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    margin-right: 5px;
+}
+#mipc-window .mipc-function-bar img {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+#mipc-window .mipc-function-bar .separator {
+    border-left: 1px solid #ACA899;
+    height: 24px;
+    margin: 0 5px;
+}
+
+#mipc-window .mipc-address-bar {
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+    font-size: 11px;
+}
+#mipc-window .mipc-address-bar .address-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid #7F9DB9;
+    background: white;
+    flex-grow: 1;
+    padding: 1px 3px;
+    margin-left: 5px;
+}
+#mipc-window .mipc-address-bar .address-input img {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+#mipc-window .mipc-main-content {
+    display: flex;
+    height: calc(100% - 85px); /* Altura total menos las barras superiores */
+}
+
+#mipc-window .mipc-left-panel {
+    width: 180px;
+    background: linear-gradient(to bottom, #6B89D8, #3958C4);
+    padding: 10px;
+    color: white;
+    font-size: 11px;
+    font-family: 'Tahoma', sans-serif;
+}
+#mipc-window .mipc-left-panel .panel-section {
+    margin-bottom: 15px;
+}
+#mipc-window .mipc-left-panel .panel-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #D6E2FF;
+}
+#mipc-window .mipc-left-panel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#mipc-window .mipc-left-panel li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    color: #10348B;
+    font-weight: bold;
+}
+#mipc-window .mipc-left-panel li:hover {
+    text-decoration: underline;
+    cursor: pointer;
+    color: #000;
+}
+#mipc-window .mipc-left-panel img {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+#mipc-window .mipc-right-panel {
+    flex-grow: 1;
+    background: white;
+    padding: 10px;
+    overflow-y: auto;
+    font-family: 'Tahoma', sans-serif;
+}
+#mipc-window .mipc-right-panel .panel-section {
+    margin-bottom: 15px;
+}
+#mipc-window .mipc-right-panel .panel-header {
+    font-weight: bold;
+    color: #616161;
+    border-bottom: 1px solid #E1E1E1;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+}
+#mipc-window .mipc-right-panel .panel-content-icons {
+    display: flex;
+    flex-wrap: wrap;
+}
+#mipc-window .mipc-right-panel .icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    text-align: center;
+    margin: 10px;
+    font-size: 11px;
+    cursor: pointer;
+}
+#mipc-window .mipc-right-panel .icon:hover {
+    background-color: #E8F0FF;
+    border: 1px solid #D0E0F0;
+}
+#mipc-window .mipc-right-panel .icon img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 5px;
+}

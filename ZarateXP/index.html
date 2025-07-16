@@ -26,6 +26,11 @@
     <link rel="stylesheet" href="css/taskbar.css">
     <link rel="stylesheet" href="css/startMenu.css">
     <link rel="stylesheet" href="css/windows.css">
+    <link rel="stylesheet" href="css/winamp.css">
+    <link rel="stylesheet" href="css/winamp-integration.css">
+    <link rel="stylesheet" href="css/winamp-frameless.css">
+    <link rel="stylesheet" href="css/mipc.css">
+    <link rel="stylesheet" href="css/about-me.css">
     <link rel="stylesheet" href="css/crtEffect.css">
 </head>
 <body>
@@ -114,6 +119,14 @@
                 <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Document Search.png" alt="Mi Resumen" loading="eager">
                 <span>Mi Resumen</span>
             </div>
+            <div id="winamp-desktop-icon" class="desktop-icon" data-program-name="winamp">
+                <img src="./images/winamp.png" alt="Winamp" loading="eager">
+                <span>Winamp</span>
+            </div>
+            <div class="desktop-icon" data-program-name="my-computer">
+                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png" alt="Mi PC" loading="eager">
+                <span>Mi PC</span>
+            </div>
         </div>
     </div>
 
@@ -140,6 +153,9 @@
 
     <!-- Scripts -->
     <script type="module" src="js/main.js"></script>
+    <script src="js/apps.js"></script>
+    <script type="module" src="js/winamp-logic.js"></script>
+
 
     <!-- CRT Effect - ALL DISABLED -->
     <div class="crt-effect" style="display: none;"></div>
@@ -154,33 +170,41 @@
     <!-- Log off dialog -->
     <div id="logoff-dialog-container" class="logoff-dialog-hidden" style="display: none;">
         <div class="logoff-dialog">
-            <div class="logoff-dialog-body">
-                <div class="logoff-dialog-header-content">
-                    <img src="assets/images/windows-xp-icon.png" alt="" class="logoff-dialog-header-icon">
-                    <span class="logoff-dialog-header-text">Cerrar sesión de Windows</span>
-                </div>
-                <div class="logoff-dialog-separator-bar logoff-dialog-separator-bar-top"></div>
+            <img src="images/tarjeta_windos.png" alt="Windows XP Dialog" class="logoff-dialog-background">
+            <div class="logoff-dialog-content">
+                <div class="logoff-dialog-header-text">Turn off MitchIvin XP</div>
                 <div class="logoff-dialog-button-container">
-                    <div id="logoff-switch-user-btn" class="logoff-dialog-button">
-                        <img src="assets/images/restart.png" alt="Restart Icon" width="22" height="22" draggable="false">
-                        <span>Reiniciar</span>
+                    <div id="logoff-restart-btn" class="logoff-dialog-button">
+                        <img src="assets/images/restart.png" alt="Restart Icon" width="48" height="48" draggable="false">
+                        <span>Restart</span>
                     </div>
-                    <div id="logoff-log-off-btn" class="logoff-dialog-button">
-                        <img src="assets/images/shutdown.png" alt="Log Off Icon" width="22" height="22" draggable="false">
-                        <span>Cerrar sesión</span>
-                    </div>
-                </div>
-                <div class="logoff-dialog-separator-bar logoff-dialog-separator-bar-bottom">
-                    <div class="logoff-dialog-footer">
-                        <button id="logoff-cancel-btn" aria-label="Cancel" style="user-select:none">Cancelar</button>
+                    <div id="logoff-shutdown-btn" class="logoff-dialog-button">
+                        <img src="images/off.png" alt="Shutdown Icon" width="48" height="48" draggable="false">
+                        <span>Shut Down</span>
                     </div>
                 </div>
+                <button id="logoff-cancel-btn" aria-label="Cancel">Cancel</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Shutdown Window -->
+    <div id="shutdown-window-container" class="shutdown-window-hidden" style="display: none;">
+        <div class="shutdown-window">
+            <img src="images/off.png" alt="Apagando..." class="shutdown-image">
+        </div>
+    </div>
+
+    <!-- Logoff Window -->
+    <div id="logoff-window-container" class="logoff-window-hidden" style="display: none;">
+        <div class="logoff-window">
+            <img src="images/logoff-window.png" alt="Cerrando Sesión..." class="logoff-image">
         </div>
     </div>
 
     <!-- Dynamic tooltip -->
     <div class="dynamic-tooltip dynamic-tooltip-style"></div>
+
 
     <!-- Landscape block for mobile -->
     <div id="landscape-block" style="display: none;">
@@ -233,6 +257,24 @@
                         </div>
                     </li>
                     <li class="menu-divider"><hr class="divider"></li>
+                    <li class="menu-item disabled" id="menu-photos">
+                        <img src="./assets/images/folder.png" alt="Mis Fotos">
+                        <div class="item-content">
+                            <span class="item-title">Mis Fotos</span>
+                        </div>
+                    </li>
+                    <li class="menu-item" id="menu-music" data-action="open-program" data-program-name="winamp">
+                        <img src="./images/winamp.png" alt="Winamp">
+                        <div class="item-content">
+                            <span class="item-title">Winamp</span>
+                        </div>
+                    </li>
+                    <li class="menu-item disabled" id="menu-video">
+                        <img src="./assets/images/computer.png" alt="Reproductor de Video">
+                        <div class="item-content">
+                            <span class="item-title">Reproductor de Video</span>
+                        </div>
+                    </li>
                 </ul>
                 <div class="all-programs-container">
                     <div class="all-programs-button" id="menu-all-programs" data-action="toggle-all-programs">
@@ -243,6 +285,12 @@
             </div>
             <div class="middle-section middle-right">
                 <ul class="menu-items">
+                    <li class="menu-item disabled" id="menu-instagram">
+                        <img src="./assets/images/user-icon.png" alt="Instagram">
+                        <div class="item-content">
+                            <span class="item-title">Instagram</span>
+                        </div>
+                    </li>
                     <li class="menu-item" id="menu-github" data-action="open-url" data-url="https://github.com/yourusername">
                         <img src="./assets/images/github.png" alt="Github">
                         <div class="item-content">
@@ -262,6 +310,12 @@
                             <span class="item-title">Bloc de notas</span>
                         </div>
                     </li>
+                    <li class="menu-item disabled" id="menu-cmd">
+                        <img src="./assets/images/computer.png" alt="Símbolo del sistema">
+                        <div class="item-content">
+                            <span class="item-title">Símbolo del sistema</span>
+                        </div>
+                    </li>
                     <li class="menu-divider divider-darkblue"><hr class="divider"></li>
                     <li class="menu-item" id="menu-program4" data-action="toggle-recently-used" style="position: relative; width: 100%;">
                         <img src="./assets/images/folder-open.png" alt="Recently Used">
@@ -276,7 +330,7 @@
         <div class="start-menu-footer">
             <div class="footer-buttons">
                 <div class="footer-button" id="btn-log-off" data-action="log-off">
-                    <img src="./assets/images/shutdown.png" alt="Log Off">
+                    <img src="./assets/images/restart.png" alt="Log Off">
                     <span>Cerrar sesión</span>
                 </div>
                 <div class="footer-button" id="btn-shut-down" data-action="shut-down">
@@ -305,6 +359,19 @@
             <li class="all-programs-item" data-action="open-program" data-program-name="contact">
                 <img src="./assets/images/email.png" alt="Contacto">
                 Contacto
+            </li>
+            <li class="all-programs-separator"></li>
+            <li class="all-programs-item disabled">
+                <img src="./assets/images/folder.png" alt="Accesorios">
+                Accesorios
+            </li>
+            <li class="all-programs-item disabled">
+                <img src="./assets/images/folder.png" alt="Entretenimiento">
+                Entretenimiento
+            </li>
+            <li class="all-programs-item disabled">
+                <img src="./assets/images/folder.png" alt="Herramientas del sistema">
+                Herramientas del sistema
             </li>
             <li class="all-programs-separator"></li>
             <li class="all-programs-item" data-action="open-url" data-url="https://github.com/yourusername">

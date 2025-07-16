@@ -486,89 +486,154 @@
 }
 
 .logoff-dialog {
-    background: #ECE9D8;
-    border: 3px solid #0054E3;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    min-width: 320px;
+    position: relative;
+    display: inline-block;
 }
 
-.logoff-dialog-body {
+.logoff-dialog-background {
+    display: block;
+    width: 400px;
+    height: auto;
+    max-width: 400px;
+}
+
+.logoff-dialog-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     padding: 0;
 }
 
-.logoff-dialog-header-content {
-    background: linear-gradient(to right, #0054E3, #4A8FDB);
-    color: white;
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.logoff-dialog-header-icon {
-    width: 16px;
-    height: 16px;
-}
-
 .logoff-dialog-header-text {
+    color: white;
     font-size: 14px;
     font-weight: bold;
-}
-
-.logoff-dialog-separator-bar {
-    height: 2px;
-    background: #D4D0C8;
+    font-family: 'Tahoma', sans-serif;
+    text-align: left;
+    padding: 12px 12px 8px 12px;
+    margin-top: 0;
 }
 
 .logoff-dialog-button-container {
-    padding: 20px;
     display: flex;
-    gap: 20px;
+    gap: 60px;
     justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 20px 0;
 }
 
 .logoff-dialog-button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 10px;
+    gap: 12px;
+    padding: 15px;
     cursor: pointer;
     border-radius: 4px;
     transition: background 0.2s;
+    background: transparent;
+    border: 1px solid transparent;
+    min-width: 100px;
 }
 
 .logoff-dialog-button:hover {
-    background: rgba(0, 84, 227, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .logoff-dialog-button img {
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
 }
 
 .logoff-dialog-button span {
-    font-size: 11px;
+    font-size: 12px;
     text-align: center;
-}
-
-.logoff-dialog-footer {
-    padding: 8px 12px;
-    text-align: right;
-    background: #ECE9D8;
+    color: #000;
+    font-family: 'Tahoma', sans-serif;
+    font-weight: normal;
 }
 
 #logoff-cancel-btn {
-    padding: 4px 16px;
+    padding: 6px 20px;
     font-size: 11px;
-    background: #fff;
-    border: 1px solid #003C74;
+    background: #E1E1E1;
+    border: 1px solid #ADADAD;
     border-radius: 3px;
     cursor: pointer;
+    font-family: 'Tahoma', sans-serif;
+    color: #000;
+    margin: 0 20px 20px 0;
+    align-self: flex-end;
 }
 
 #logoff-cancel-btn:hover {
-    background: #E5F1FB;
+    background: #EFEFEF;
     border-color: #0054E3;
+}
+
+/* Shutdown Window Styles */
+.shutdown-window-hidden {
+    display: none;
+}
+
+#shutdown-window-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shutdown-window {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shutdown-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+/* Logoff Window Styles */
+.logoff-window-hidden {
+    display: none;
+}
+
+#logoff-window-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoff-window {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoff-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
 }

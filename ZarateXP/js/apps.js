@@ -1,167 +1,118 @@
-// Application Manager Module
+// --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
+
+// Función para hacer cualquier elemento arrastrable
+function makeDraggable(element) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    const titleBar = element.querySelector(".title-bar") || element; // Arrastrar desde la barra de título o el elemento mismo
+
+    titleBar.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        element.style.top = `${element.offsetTop - pos2}px`;
+        element.style.left = `${element.offsetLeft - pos1}px`;
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
+// --- AppManager Class para compatibilidad con el sistema existente ---
+
 export class AppManager {
     constructor() {
         this.apps = new Map();
         this.runningApps = new Map();
+        this.windowManager = null; // Se asignará en init()
         
         // Register built-in applications
         this.registerBuiltInApps();
     }
     
-    init() {
-        // Initialize app registry
-        this.loadAppRegistry();
+    init(windowManager) {
+        // Guardar referencia al WindowManager
+        this.windowManager = windowManager;
+        
+        // Cargar el script principal de Winamp una sola vez cuando se inicializa el sistema
+        this.loadAppScripts();
+    }
+    
+    loadAppScripts() {
+        const winampScript = document.createElement('script');
+        winampScript.type = 'module';
+        winampScript.src = 'js/winamp.js';
+        document.head.appendChild(winampScript);
     }
     
     registerBuiltInApps() {
-        // About Me (Portfolio)
+        // Registrar Mi PC
         this.registerApp({
-            id: 'about-me',
-            name: 'About Me',
-            icon: './assets/images/user.png',
+            id: 'my-computer',
+            name: 'Mi PC',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png',
             category: 'system',
-            description: 'Learn about Zarate',
-            handler: () => this.openAboutMe()
+            description: 'Browse computer files and drives',
+            handler: () => this._openMyComputer()
         });
         
-        // My Projects
+        // Registrar Winamp
+        this.registerApp({
+            id: 'winamp',
+            name: 'Winamp',
+            icon: './images/winamp.png',
+            category: 'entertainment',
+            description: 'It really whips the llama\'s ass!',
+            handler: () => this._openWinamp()
+        });
+        
+        // Registrar otras aplicaciones básicas para compatibilidad
+        this.registerApp({
+            id: 'about-me',
+            name: 'Sobre Mí',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/User Accounts.png',
+            category: 'system',
+            description: 'Conoce más sobre Ivan Zarate',
+            handler: () => this._openAboutMe()
+        });
+        
         this.registerApp({
             id: 'projects',
             name: 'My Projects',
             icon: './images/icons/folder-projects.png',
             category: 'documents',
             description: 'View my portfolio projects',
-            handler: () => this.openProjects()
+            handler: () => this.showPlaceholder('My Projects')
         });
         
-        // Resume
         this.registerApp({
             id: 'resume',
             name: 'Resume.pdf',
             icon: './images/icons/pdf.png',
             category: 'documents',
             description: 'View my resume',
-            handler: () => this.openResume()
+            handler: () => this.showPlaceholder('Resume')
         });
         
-        // Contact
         this.registerApp({
             id: 'contact',
             name: 'Contact',
             icon: './images/icons/email.png',
             category: 'internet',
             description: 'Get in touch',
-            handler: () => this.openContact()
-        });
-        
-        // Skills
-        this.registerApp({
-            id: 'skills',
-            name: 'Skills & Tools',
-            icon: './images/icons/tools.png',
-            category: 'system',
-            description: 'Technical skills and tools',
-            handler: () => this.openSkills()
-        });
-        
-        // Terminal
-        this.registerApp({
-            id: 'terminal',
-            name: 'Command Prompt',
-            icon: './images/icons/cmd.png',
-            category: 'system',
-            description: 'Command line interface',
-            handler: () => this.openTerminal()
-        });
-        
-        // Notepad
-        this.registerApp({
-            id: 'notepad',
-            name: 'Notepad',
-            icon: './images/icons/notepad.png',
-            category: 'accessories',
-            description: 'Simple text editor',
-            handler: () => this.openNotepad()
-        });
-        
-        // Paint
-        this.registerApp({
-            id: 'paint',
-            name: 'Paint',
-            icon: './images/icons/paint.png',
-            category: 'accessories',
-            description: 'Image editor',
-            handler: () => this.openPaint()
-        });
-        
-        // Calculator
-        this.registerApp({
-            id: 'calculator',
-            name: 'Calculator',
-            icon: './images/icons/calc.png',
-            category: 'accessories',
-            description: 'Calculator application',
-            handler: () => this.openCalculator()
-        });
-        
-        // Internet Explorer
-        this.registerApp({
-            id: 'internet-explorer',
-            name: 'Internet Explorer',
-            icon: './images/icons/ie.png',
-            category: 'internet',
-            description: 'Browse the web',
-            handler: () => this.openInternetExplorer()
-        });
-        
-        // Media Player
-        this.registerApp({
-            id: 'media-player',
-            name: 'Windows Media Player',
-            icon: './images/icons/media-player.png',
-            category: 'entertainment',
-            description: 'Play media files',
-            handler: () => this.openMediaPlayer()
-        });
-        
-        // Minesweeper
-        this.registerApp({
-            id: 'minesweeper',
-            name: 'Minesweeper',
-            icon: './images/icons/minesweeper.png',
-            category: 'games',
-            description: 'Classic Minesweeper game',
-            handler: () => this.openMinesweeper()
-        });
-        
-        // Solitaire
-        this.registerApp({
-            id: 'solitaire',
-            name: 'Solitaire',
-            icon: './images/icons/solitaire.png',
-            category: 'games',
-            description: 'Classic card game',
-            handler: () => this.openSolitaire()
-        });
-        
-        // Control Panel
-        this.registerApp({
-            id: 'control-panel',
-            name: 'Control Panel',
-            icon: './images/icons/control-panel.png',
-            category: 'system',
-            description: 'System settings',
-            handler: () => this.openControlPanel()
-        });
-        
-        // Recycle Bin
-        this.registerApp({
-            id: 'recycle-bin',
-            name: 'Recycle Bin',
-            icon: './images/icons/recycle-bin-empty.png',
-            category: 'system',
-            description: 'Deleted items',
-            handler: () => this.openRecycleBin()
+            handler: () => this.showPlaceholder('Contact')
         });
     }
     
@@ -169,20 +120,7 @@ export class AppManager {
         this.apps.set(appConfig.id, appConfig);
     }
     
-    loadAppRegistry() {
-        // Load custom apps from localStorage
-        const customApps = localStorage.getItem('zarateXP_customApps');
-        if (customApps) {
-            try {
-                const apps = JSON.parse(customApps);
-                apps.forEach(app => this.registerApp(app));
-            } catch (e) {
-                console.error('Failed to load custom apps:', e);
-            }
-        }
-    }
-    
-    launchApp(appId) {
+    openApp(appId) {
         const app = this.apps.get(appId);
         if (!app) {
             console.error(`App not found: ${appId}`);
@@ -190,13 +128,9 @@ export class AppManager {
             return;
         }
         
-        // Check if app is already running
+        // Check if app is already running for single-instance apps
         if (this.runningApps.has(appId) && !app.multiInstance) {
-            // Focus existing window
-            const windowId = this.runningApps.get(appId);
-            if (window.zarateXP?.windowManager) {
-                window.zarateXP.windowManager.focusWindow(windowId);
-            }
+            console.log(`App ${appId} is already running`);
             return;
         }
         
@@ -217,546 +151,75 @@ export class AppManager {
         }
     }
     
-    // Alias for compatibility with desktop.js and startMenu.js
-    openApp(appId) {
-        return this.launchApp(appId);
-    }
+    // --- Métodos privados para aplicaciones específicas ---
     
-    closeApp(appId) {
-        this.runningApps.delete(appId);
-    }
-    
-    getApp(appId) {
-        return this.apps.get(appId);
-    }
-    
-    getAppsByCategory(category) {
-        return Array.from(this.apps.values()).filter(app => app.category === category);
-    }
-    
-    getAllApps() {
-        return Array.from(this.apps.values());
-    }
-    
-    // Built-in app handlers
-    openAboutMe() {
-        const content = `
-            <div class="about-me-content">
-                <div class="profile-section">
-                    <img src="./images/profile.jpg" alt="Profile" class="profile-image">
-                    <h2>Zarate</h2>
-                    <p class="tagline">Full Stack Developer</p>
-                </div>
-                
-                <div class="info-section">
-                    <h3>About Me</h3>
-                    <p>Passionate developer with expertise in modern web technologies. 
-                    I love creating innovative solutions and bringing ideas to life through code.</p>
-                    
-                    <h3>What I Do</h3>
-                    <ul>
-                        <li>🚀 Full Stack Development</li>
-                        <li>💻 Web Applications</li>
-                        <li>📱 Responsive Design</li>
-                        <li>🎨 UI/UX Design</li>
-                        <li>🔧 System Architecture</li>
-                    </ul>
-                    
-                    <h3>Experience</h3>
-                    <p>5+ years building scalable web applications and leading development teams.</p>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('about-me', 'About Me', content, {
-            width: 500,
-            height: 600
-        });
-    }
-    
-    openProjects() {
-        const content = `
-            <div class="projects-content">
-                <div class="toolbar">
-                    <button class="filter-btn active" data-filter="all">All Projects</button>
-                    <button class="filter-btn" data-filter="web">Web Apps</button>
-                    <button class="filter-btn" data-filter="mobile">Mobile</button>
-                    <button class="filter-btn" data-filter="other">Other</button>
-                </div>
-                
-                <div class="projects-grid">
-                    <div class="project-card" data-category="web">
-                        <img src="./images/projects/project1.png" alt="Project 1">
-                        <h3>E-Commerce Platform</h3>
-                        <p>Full-stack e-commerce solution with React and Node.js</p>
-                        <div class="tech-stack">
-                            <span class="tech-tag">React</span>
-                            <span class="tech-tag">Node.js</span>
-                            <span class="tech-tag">MongoDB</span>
-                        </div>
-                        <button class="view-btn">View Details</button>
-                    </div>
-                    
-                    <div class="project-card" data-category="mobile">
-                        <img src="./images/projects/project2.png" alt="Project 2">
-                        <h3>Task Manager App</h3>
-                        <p>Cross-platform mobile app for task management</p>
-                        <div class="tech-stack">
-                            <span class="tech-tag">React Native</span>
-                            <span class="tech-tag">Firebase</span>
-                        </div>
-                        <button class="view-btn">View Details</button>
-                    </div>
-                    
-                    <div class="project-card" data-category="web">
-                        <img src="./images/projects/project3.png" alt="Project 3">
-                        <h3>Real-time Chat App</h3>
-                        <p>WebSocket-based chat application with rooms</p>
-                        <div class="tech-stack">
-                            <span class="tech-tag">Socket.io</span>
-                            <span class="tech-tag">Express</span>
-                            <span class="tech-tag">Redis</span>
-                        </div>
-                        <button class="view-btn">View Details</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('projects', 'My Projects', content, {
-            width: 800,
-            height: 600
-        });
-    }
-    
-    openResume() {
-        const content = `
-            <div class="resume-viewer">
-                <div class="pdf-toolbar">
-                    <button class="pdf-btn">🖨️ Print</button>
-                    <button class="pdf-btn">💾 Download</button>
-                    <button class="pdf-btn">🔍 Zoom In</button>
-                    <button class="pdf-btn">🔍 Zoom Out</button>
-                </div>
-                <iframe src="./documents/resume.pdf" class="pdf-frame"></iframe>
-            </div>
-        `;
-        
-        return this.createWindow('resume', 'Resume.pdf', content, {
-            width: 700,
-            height: 900
-        });
-    }
-    
-    openContact() {
-        const content = `
-            <div class="contact-content">
-                <h2>Get in Touch</h2>
-                
-                <form class="contact-form">
-                    <div class="form-group">
-                        <label>Name:</label>
-                        <input type="text" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Subject:</label>
-                        <input type="text" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Message:</label>
-                        <textarea class="form-control" rows="5" required></textarea>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn">Send Message</button>
-                </form>
-                
-                <div class="contact-info">
-                    <h3>Other Ways to Connect</h3>
-                    <div class="social-links">
-                        <a href="#" class="social-link">📧 email@example.com</a>
-                        <a href="#" class="social-link">💼 LinkedIn</a>
-                        <a href="#" class="social-link">🐙 GitHub</a>
-                        <a href="#" class="social-link">🐦 Twitter</a>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('contact', 'Contact', content, {
-            width: 500,
-            height: 600
-        });
-    }
-    
-    openSkills() {
-        const content = `
-            <div class="skills-content">
-                <div class="skills-tabs">
-                    <button class="tab-btn active" data-tab="languages">Languages</button>
-                    <button class="tab-btn" data-tab="frameworks">Frameworks</button>
-                    <button class="tab-btn" data-tab="tools">Tools</button>
-                    <button class="tab-btn" data-tab="other">Other</button>
-                </div>
-                
-                <div class="tab-content active" id="languages">
-                    <div class="skill-item">
-                        <span class="skill-name">JavaScript</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 90%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">TypeScript</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Python</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 80%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">HTML/CSS</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 95%"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="tab-content" id="frameworks">
-                    <div class="framework-grid">
-                        <div class="framework-card">React</div>
-                        <div class="framework-card">Vue.js</div>
-                        <div class="framework-card">Angular</div>
-                        <div class="framework-card">Node.js</div>
-                        <div class="framework-card">Express</div>
-                        <div class="framework-card">Django</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('skills', 'Skills & Tools', content, {
-            width: 600,
-            height: 500
-        });
-    }
-    
-    openTerminal() {
-        const content = `
-            <div class="terminal-content">
-                <div class="terminal-output" id="terminal-output">
-                    <div>Microsoft Windows XP [Version 5.1.2600]</div>
-                    <div>(C) Copyright 1985-2001 Microsoft Corp.</div>
-                    <div>&nbsp;</div>
-                </div>
-                <div class="terminal-input-line">
-                    <span class="terminal-prompt">C:\\></span>
-                    <input type="text" class="terminal-input" id="terminal-input" autofocus>
-                </div>
-            </div>
-        `;
-        
-        const window = this.createWindow('terminal', 'Command Prompt', content, {
-            width: 600,
-            height: 400
-        });
-        
-        // Set up terminal functionality
-        this.setupTerminal(window);
-        
-        return window;
-    }
-    
-    openNotepad() {
-        const content = `
-            <div class="notepad-content">
-                <div class="menu-bar">
-                    <div class="menu-item">File</div>
-                    <div class="menu-item">Edit</div>
-                    <div class="menu-item">Format</div>
-                    <div class="menu-item">View</div>
-                    <div class="menu-item">Help</div>
-                </div>
-                <textarea class="notepad-textarea" placeholder="Type here..."></textarea>
-                <div class="status-bar">
-                    <span>Ln 1, Col 1</span>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('notepad', 'Untitled - Notepad', content, {
-            width: 500,
-            height: 400
-        });
-    }
-    
-    openPaint() {
-        const content = `
-            <div class="paint-content">
-                <div class="paint-toolbar">
-                    <button class="tool-btn" title="Pencil">✏️</button>
-                    <button class="tool-btn" title="Brush">🖌️</button>
-                    <button class="tool-btn" title="Eraser">🧹</button>
-                    <button class="tool-btn" title="Fill">🪣</button>
-                    <button class="tool-btn" title="Text">A</button>
-                    <button class="tool-btn" title="Line">📏</button>
-                    <button class="tool-btn" title="Rectangle">▭</button>
-                    <button class="tool-btn" title="Circle">○</button>
-                </div>
-                <div class="paint-colors">
-                    <div class="color-swatch" style="background: black"></div>
-                    <div class="color-swatch" style="background: white"></div>
-                    <div class="color-swatch" style="background: red"></div>
-                    <div class="color-swatch" style="background: green"></div>
-                    <div class="color-swatch" style="background: blue"></div>
-                    <div class="color-swatch" style="background: yellow"></div>
-                </div>
-                <canvas class="paint-canvas" width="600" height="400"></canvas>
-            </div>
-        `;
-        
-        return this.createWindow('paint', 'Untitled - Paint', content, {
-            width: 700,
-            height: 500
-        });
-    }
-    
-    openCalculator() {
-        const content = `
-            <div class="calculator-content">
-                <input type="text" class="calc-display" value="0" readonly>
-                <div class="calc-buttons">
-                    <button class="calc-btn">MC</button>
-                    <button class="calc-btn">MR</button>
-                    <button class="calc-btn">MS</button>
-                    <button class="calc-btn">M+</button>
-                    <button class="calc-btn">M-</button>
-                    
-                    <button class="calc-btn">←</button>
-                    <button class="calc-btn">CE</button>
-                    <button class="calc-btn">C</button>
-                    <button class="calc-btn">±</button>
-                    <button class="calc-btn">√</button>
-                    
-                    <button class="calc-btn">7</button>
-                    <button class="calc-btn">8</button>
-                    <button class="calc-btn">9</button>
-                    <button class="calc-btn">/</button>
-                    <button class="calc-btn">%</button>
-                    
-                    <button class="calc-btn">4</button>
-                    <button class="calc-btn">5</button>
-                    <button class="calc-btn">6</button>
-                    <button class="calc-btn">*</button>
-                    <button class="calc-btn">1/x</button>
-                    
-                    <button class="calc-btn">1</button>
-                    <button class="calc-btn">2</button>
-                    <button class="calc-btn">3</button>
-                    <button class="calc-btn">-</button>
-                    <button class="calc-btn calc-equals" rowspan="2">=</button>
-                    
-                    <button class="calc-btn calc-zero" colspan="2">0</button>
-                    <button class="calc-btn">.</button>
-                    <button class="calc-btn">+</button>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('calculator', 'Calculator', content, {
-            width: 250,
-            height: 320,
-            resizable: false
-        });
-    }
-    
-    openInternetExplorer() {
-        const content = `
-            <div class="ie-content">
-                <div class="ie-toolbar">
-                    <button class="ie-btn">⬅️</button>
-                    <button class="ie-btn">➡️</button>
-                    <button class="ie-btn">🔄</button>
-                    <button class="ie-btn">🏠</button>
-                    <button class="ie-btn">🔍</button>
-                    <input type="text" class="ie-address-bar" value="https://zarate.dev">
-                    <button class="ie-btn">Go</button>
-                </div>
-                <iframe src="https://zarate.dev" class="ie-frame"></iframe>
-            </div>
-        `;
-        
-        return this.createWindow('internet-explorer', 'Internet Explorer', content, {
-            width: 800,
-            height: 600
-        });
-    }
-    
-    openMediaPlayer() {
-        const content = `
-            <div class="media-player-content">
-                <div class="player-screen">
-                    <div class="visualizer"></div>
-                </div>
-                <div class="player-controls">
-                    <button class="player-btn">⏮️</button>
-                    <button class="player-btn">▶️</button>
-                    <button class="player-btn">⏸️</button>
-                    <button class="player-btn">⏹️</button>
-                    <button class="player-btn">⏭️</button>
-                </div>
-                <div class="player-info">
-                    <div class="track-name">No track playing</div>
-                    <div class="track-time">00:00 / 00:00</div>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('media-player', 'Windows Media Player', content, {
-            width: 600,
-            height: 400
-        });
-    }
-    
-    openMinesweeper() {
-        const content = `
-            <div class="minesweeper-content">
-                <div class="game-info">
-                    <div class="mine-counter">010</div>
-                    <button class="new-game-btn">🙂</button>
-                    <div class="timer">000</div>
-                </div>
-                <div class="game-board" id="minesweeper-board"></div>
-            </div>
-        `;
-        
-        return this.createWindow('minesweeper', 'Minesweeper', content, {
-            width: 300,
-            height: 400,
-            resizable: false
-        });
-    }
-    
-    openSolitaire() {
-        const content = `
-            <div class="solitaire-content">
-                <div class="solitaire-toolbar">
-                    <button>New Game</button>
-                    <button>Undo</button>
-                    <button>Hint</button>
-                </div>
-                <div class="solitaire-board">
-                    <div class="card-placeholder">♠️ Solitaire Coming Soon</div>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('solitaire', 'Solitaire', content, {
-            width: 700,
-            height: 500
-        });
-    }
-    
-    openControlPanel() {
-        const content = `
-            <div class="control-panel-content">
-                <h2>Pick a category</h2>
-                <div class="control-panel-grid">
-                    <div class="control-item">
-                        <img src="./images/icons/display.png" alt="Display">
-                        <span>Display</span>
-                    </div>
-                    <div class="control-item">
-                        <img src="./images/icons/sound.png" alt="Sound">
-                        <span>Sounds and Audio</span>
-                    </div>
-                    <div class="control-item">
-                        <img src="./images/icons/network.png" alt="Network">
-                        <span>Network Connections</span>
-                    </div>
-                    <div class="control-item">
-                        <img src="./images/icons/user-accounts.png" alt="Users">
-                        <span>User Accounts</span>
-                    </div>
-                    <div class="control-item">
-                        <img src="./images/icons/add-remove.png" alt="Programs">
-                        <span>Add or Remove Programs</span>
-                    </div>
-                    <div class="control-item">
-                        <img src="./images/icons/system.png" alt="System">
-                        <span>System</span>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('control-panel', 'Control Panel', content, {
-            width: 600,
-            height: 400
-        });
-    }
-    
-    openRecycleBin() {
-        const content = `
-            <div class="recycle-bin-content">
-                <div class="toolbar">
-                    <button>Empty Recycle Bin</button>
-                    <button>Restore All</button>
-                </div>
-                <div class="file-list">
-                    <div class="empty-message">
-                        <img src="./images/icons/recycle-bin-empty.png" alt="Empty">
-                        <p>Recycle Bin is empty</p>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        return this.createWindow('recycle-bin', 'Recycle Bin', content, {
-            width: 500,
-            height: 400
-        });
-    }
-    
-    // Helper methods
-    createWindow(appId, title, content, options = {}) {
-        if (!window.zarateXP?.windowManager) {
-            console.error('Window Manager not available');
-            return null;
+    async _openMyComputer() {
+        // Prevenir que se abra más de una ventana de "Mi PC"
+        if (this.runningApps.has('my-computer')) {
+            console.log('Mi PC is already running');
+            // Intentar enfocar la ventana existente si el WindowManager lo permite
+            if (this.windowManager && this.windowManager.focusWindow) {
+                this.windowManager.focusWindow('my-computer');
+            }
+            return;
         }
-        
-        const app = this.apps.get(appId);
-        const windowOptions = {
-            id: `window-${appId}-${Date.now()}`,
-            title,
-            icon: app?.icon || './images/icons/default.png',
-            content,
-            ...options
-        };
-        
-        const windowElement = window.zarateXP.windowManager.createWindow(windowOptions);
-        
-        if (windowElement) {
-            // Track running app
-            this.runningApps.set(appId, windowOptions.id);
+
+        try {
+            // 1. Esperar a que se cargue el contenido del archivo
+            console.log('Loading mipc.html...');
+            const response = await fetch('./mipc.html');
+            if (!response.ok) {
+                throw new Error(`Error al cargar mipc.html: ${response.statusText} (${response.status})`);
+            }
+            const htmlContent = await response.text();
             
-            // Clean up when window closes
+            console.log('mipc.html loaded successfully, extracting and adapting content...');
+
+            // Extraer el contenido del window-body pero mantener la estructura necesaria para CSS
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const windowBody = doc.querySelector('.window-body');
+            
+            let content;
+            if (windowBody) {
+                // Crear un contenedor con el ID necesario para los estilos CSS
+                content = `<div id="mipc-window">${windowBody.innerHTML}</div>`;
+                console.log('Window body content extracted and wrapped with mipc-window ID');
+            } else {
+                // Fallback: usar todo el contenido si no se encuentra window-body
+                content = htmlContent;
+                console.log('Window body not found, using full content as fallback');
+            }
+
+            // 2. Verificar que WindowManager esté disponible
+            if (!this.windowManager) {
+                throw new Error('WindowManager no está disponible');
+            }
+
+            // 3. Una vez que el contenido está listo, crear la ventana
+            console.log('Creating Mi PC window with WindowManager...');
+            
+            const window = this.windowManager.createWindow({
+                id: 'my-computer',
+                title: 'Mi PC',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png',
+                content: content,
+                width: 660,
+                height: 500
+            });
+
+            // 4. Marcar como aplicación en ejecución
+            this.runningApps.set('my-computer', 'my-computer');
+
+            // 5. Configurar cleanup cuando se cierre la ventana
+            // Usar MutationObserver para detectar cuando la ventana se remueve del DOM
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.removedNodes.length > 0) {
                         mutation.removedNodes.forEach((node) => {
-                            if (node === windowElement) {
-                                this.closeApp(appId);
+                            if (node === window) {
+                                console.log('Mi PC window removed, cleaning up...');
+                                this.closeApp('my-computer');
                                 observer.disconnect();
                             }
                         });
@@ -764,299 +227,573 @@ export class AppManager {
                 });
             });
             
-            observer.observe(windowElement.parentNode, { childList: true });
+            // Observar cambios en el contenedor de ventanas
+            if (window.parentNode) {
+                observer.observe(window.parentNode, { childList: true });
+            }
+
+            console.log('Mi PC window created successfully with cleanup observer');
+            return window;
+
+        } catch (error) {
+            console.error("No se pudo abrir 'Mi PC':", error);
+            
+            // Mostrar una ventana de error al usuario
+            if (this.windowManager) {
+                this.windowManager.createWindow({
+                    id: 'error-mipc',
+                    title: 'Error',
+                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png',
+                    content: `
+                        <div style="padding: 20px; text-align: center;">
+                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <div style="margin-bottom: 10px;"><strong>No se pudo cargar el componente 'Mi PC'</strong></div>
+                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <button onclick="this.closest('.window').remove()">OK</button>
+                        </div>
+                    `,
+                    width: 400,
+                    height: 200,
+                    resizable: false
+                });
+            } else {
+                // Fallback si WindowManager no está disponible
+                alert(`Error: No se pudo abrir Mi PC. ${error.message}`);
+            }
         }
-        
-        return { windowId: windowOptions.id, element: windowElement };
     }
     
-    setupTerminal(windowData) {
-        if (!windowData || !windowData.element) return;
+    async _openWinamp() {
+        try {
+            // 1. Prevenir múltiples instancias
+            if (this.runningApps.has('winamp')) {
+                console.log('Winamp is already running');
+                return;
+            }
+
+            // 2. Verificar que WindowManager esté disponible
+            if (!this.windowManager) {
+                throw new Error('WindowManager no está disponible');
+            }
+
+            // 3. Crear una ventana "frameless" especial para Winamp
+            const winampContainer = this._createFramelessWinampWindow();
+
+            // 4. Marcar como aplicación en ejecución
+            this.runningApps.set('winamp', 'winamp');
+
+            // 5. Configurar cleanup cuando se cierre la ventana
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.removedNodes.length > 0) {
+                        mutation.removedNodes.forEach((node) => {
+                            if (node === winampContainer) {
+                                console.log('Winamp window removed, cleaning up...');
+                                this.closeApp('winamp');
+                                observer.disconnect();
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Observar cambios en el contenedor de ventanas
+            if (winampContainer.parentNode) {
+                observer.observe(winampContainer.parentNode, { childList: true });
+            }
+
+            // 6. Esperar a que el componente se renderice y configurar funcionalidades
+            setTimeout(() => {
+                this._setupWinampControls(winampContainer);
+            }, 500);
+
+            console.log('Frameless Winamp created successfully');
+            return { windowId: 'winamp', element: winampContainer };
+
+        } catch (error) {
+            console.error('Error al abrir Winamp:', error);
+            this.showError(`Error al abrir Winamp: ${error.message}`);
+        }
+    }
+
+    _createFramelessWinampWindow() {
+        // Crear contenedor principal sin marco de ventana
+        const winampContainer = document.createElement('div');
+        winampContainer.className = 'winamp-frameless-container';
+        winampContainer.setAttribute('data-window-id', 'winamp');
         
-        const input = windowData.element.querySelector('#terminal-input');
-        const output = windowData.element.querySelector('#terminal-output');
+        // Posicionar la ventana en el centro-derecha del escritorio
+        winampContainer.style.position = 'absolute';
+        winampContainer.style.width = '275px';
+        winampContainer.style.height = '116px';
+        winampContainer.style.left = 'calc(100vw - 300px)';
+        winampContainer.style.top = '100px';
+        winampContainer.style.zIndex = '1000';
+        winampContainer.style.cursor = 'move';
+
+        // Crear el Web Component de Winamp
+        const winampApp = document.createElement('winamp-main');
+        winampApp.setAttribute('src', 'assets/winamp/track.mp3');
         
-        if (!input || !output) return;
-        
-        const commands = {
-            help: () => 'Available commands: help, clear, echo, date, whoami, dir, cd, exit',
-            clear: () => {
-                output.innerHTML = '';
-                return '';
-            },
-            echo: (args) => args.join(' '),
-            date: () => new Date().toString(),
-            whoami: () => 'Zarate',
-            dir: () => 'Directory listing not available in demo',
-            cd: () => 'Cannot change directory in demo',
-            exit: () => {
-                window.zarateXP.windowManager.closeWindow(windowData.windowId);
-                return '';
+        // Insertar Winamp en el contenedor
+        winampContainer.appendChild(winampApp);
+
+        // Hacer la ventana arrastrable usando la barra de título del propio Winamp
+        this._makeWinampDraggable(winampContainer);
+
+        // Agregar al contenedor de ventanas del sistema
+        const windowsContainer = document.getElementById('windows-container');
+        windowsContainer.appendChild(winampContainer);
+
+        // Agregar a la taskbar
+        const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
+        if (taskbarManager) {
+            taskbarManager.addProgram('winamp', 'Winamp', './images/winamp.png');
+        }
+
+        // Reproducir sonido de apertura
+        const soundManager = this.soundManager || window.zarateXP?.soundManager;
+        if (soundManager) {
+            soundManager.play('maximize');
+        }
+
+        return winampContainer;
+    }
+
+    _makeWinampDraggable(container) {
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let initialX = 0;
+        let initialY = 0;
+
+        const handleMouseDown = (e) => {
+            // Solo permitir arrastrar desde la barra de título de Winamp (parte superior)
+            const rect = container.getBoundingClientRect();
+            const clickY = e.clientY - rect.top;
+            
+            // Solo si se hace clic en los primeros 14px (barra de título de Winamp)
+            if (clickY <= 14) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                const containerRect = container.getBoundingClientRect();
+                initialX = containerRect.left;
+                initialY = containerRect.top;
+                
+                container.style.cursor = 'grabbing';
+                e.preventDefault();
             }
         };
-        
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const command = input.value.trim();
-                const [cmd, ...args] = command.split(' ');
-                
-                // Add command to output
-                const commandLine = document.createElement('div');
-                commandLine.textContent = `C:\\> ${command}`;
-                output.appendChild(commandLine);
-                
-                // Execute command
-                if (commands[cmd]) {
-                    const result = commands[cmd](args);
-                    if (result) {
-                        const resultLine = document.createElement('div');
-                        resultLine.textContent = result;
-                        output.appendChild(resultLine);
-                    }
-                } else if (command) {
-                    const errorLine = document.createElement('div');
-                    errorLine.textContent = `'${cmd}' is not recognized as an internal or external command.`;
-                    output.appendChild(errorLine);
-                }
-                
-                // Add blank line
-                output.appendChild(document.createElement('div'));
-                
-                // Clear input
-                input.value = '';
-                
-                // Scroll to bottom
-                output.scrollTop = output.scrollHeight;
+
+        const handleMouseMove = (e) => {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            container.style.left = (initialX + deltaX) + 'px';
+            container.style.top = (initialY + deltaY) + 'px';
+        };
+
+        const handleMouseUp = () => {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            container.style.cursor = 'move';
+        };
+
+        // Eventos de arrastre
+        container.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+
+        // Almacenar referencias para cleanup
+        container._dragHandlers = {
+            mousedown: handleMouseDown,
+            mousemove: handleMouseMove,
+            mouseup: handleMouseUp
+        };
+    }
+
+    _setupWinampControls(winampContainer) {
+        try {
+            // Buscar el elemento winamp-main dentro del contenedor
+            const winampElement = winampContainer.querySelector('winamp-main');
+            if (!winampElement) {
+                console.error('No se encontró el elemento winamp-main');
+                return;
             }
-        });
+
+            // Crear elemento de audio global para la reproducción
+            const audio = document.createElement('audio');
+            audio.src = 'assets/winamp/track.mp3';
+            audio.preload = 'auto';
+            
+            // Almacenar referencia del audio en el contenedor para acceso global
+            winampContainer._audioElement = audio;
+
+            // Esperar a que el Shadow DOM esté listo
+            setTimeout(() => {
+                this._configureShadowDOMControls(winampElement, audio);
+            }, 100);
+
+            console.log('Winamp audio system configured successfully');
+
+        } catch (error) {
+            console.error('Error configurando controles de Winamp:', error);
+        }
+    }
+
+    _configureShadowDOMControls(winampElement, audio) {
+        try {
+            const shadowRoot = winampElement.shadowRoot;
+            if (!shadowRoot) {
+                console.log('Shadow DOM no disponible para Winamp');
+                return;
+            }
+
+            // Navegar por la estructura del Shadow DOM para encontrar los controles
+            const winampBody = shadowRoot.querySelector('winamp-body');
+            if (winampBody && winampBody.shadowRoot) {
+                const winampControls = winampBody.shadowRoot.querySelector('winamp-controls');
+                if (winampControls && winampControls.shadowRoot) {
+                    this._setupPlaybackControls(winampControls.shadowRoot, audio);
+                }
+
+                const winampDisplay = winampBody.shadowRoot.querySelector('winamp-display');
+                if (winampDisplay && winampDisplay.shadowRoot) {
+                    this._setupDisplayControls(winampDisplay.shadowRoot, audio);
+                }
+            }
+
+        } catch (error) {
+            console.error('Error configurando Shadow DOM de Winamp:', error);
+        }
+    }
+
+    _setupPlaybackControls(controlsShadowRoot, audio) {
+        // Buscar botones de control
+        const playButton = controlsShadowRoot.querySelector('winamp-button[type="play"]');
+        const stopButton = controlsShadowRoot.querySelector('winamp-button[type="stop"]');
+        const pauseButton = controlsShadowRoot.querySelector('winamp-button[type="pause"]');
+
+        if (playButton && playButton.shadowRoot) {
+            const playButtonElement = playButton.shadowRoot.querySelector('.button');
+            if (playButtonElement) {
+                playButtonElement.addEventListener('click', () => {
+                    audio.play();
+                    console.log('Playing: Paint It Black');
+                });
+            }
+        }
+
+        if (stopButton && stopButton.shadowRoot) {
+            const stopButtonElement = stopButton.shadowRoot.querySelector('.button');
+            if (stopButtonElement) {
+                stopButtonElement.addEventListener('click', () => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    console.log('Stopped playback');
+                });
+            }
+        }
+
+        if (pauseButton && pauseButton.shadowRoot) {
+            const pauseButtonElement = pauseButton.shadowRoot.querySelector('.button');
+            if (pauseButtonElement) {
+                pauseButtonElement.addEventListener('click', () => {
+                    if (audio.paused) {
+                        audio.play();
+                    } else {
+                        audio.pause();
+                    }
+                });
+            }
+        }
+    }
+
+    _setupDisplayControls(displayShadowRoot, audio) {
+        // Buscar el área de texto donde se muestra el título
+        const audioDataElement = displayShadowRoot.querySelector('.audio-data span');
+        
+        if (audioDataElement) {
+            // Configurar el título de la canción
+            audioDataElement.textContent = 'Paint It Black - The Rolling Stones';
+            
+            // Cambiar el título cuando se reproduce
+            audio.addEventListener('play', () => {
+                audioDataElement.textContent = 'Paint It Black - The Rolling Stones';
+            });
+            
+            audio.addEventListener('pause', () => {
+                audioDataElement.textContent = 'Paint It Black - The Rolling Stones [PAUSED]';
+            });
+        }
+    }
+
+    _setupDirectControls(winampElement) {
+        // Fallback para cuando no se puede acceder al Shadow DOM
+        try {
+            // Intentar configurar controles mediante atributos o eventos personalizados
+            winampElement.setAttribute('title', 'Paint It Black - Rolling Stones');
+            winampElement.setAttribute('artist', 'Rolling Stones');
+            
+            // Disparar evento personalizado para configurar la canción
+            const setupEvent = new CustomEvent('setup-song', {
+                detail: {
+                    title: 'Paint It Black',
+                    artist: 'Rolling Stones',
+                    src: 'assets/winamp/track.mp3'
+                }
+            });
+            winampElement.dispatchEvent(setupEvent);
+
+        } catch (error) {
+            console.error('Error en configuración directa de Winamp:', error);
+        }
+    }
+
+    async _openAboutMe() {
+        // Prevenir que se abra más de una ventana de "Sobre Mí"
+        if (this.runningApps.has('about-me')) {
+            console.log('About Me is already running');
+            // Intentar enfocar la ventana existente si el WindowManager lo permite
+            if (this.windowManager && this.windowManager.focusWindow) {
+                this.windowManager.focusWindow('about-me');
+            }
+            return;
+        }
+
+        try {
+            // Verificar que WindowManager esté disponible
+            if (!this.windowManager) {
+                throw new Error('WindowManager no está disponible');
+            }
+
+            // Crear contenido de la ventana "Sobre Mí"
+            const content = `
+                <div class="about-me-container">
+                    <div class="about-sections">
+                        <div class="about-section">
+                            <div class="about-image">
+                                <img src="images/sobremi/sobreMi1.png" alt="Ivan Zarate presentación" />
+                            </div>
+                            <div class="about-text">
+                                <p>¡Hola! Me llamo <strong>Ivan Agustin Zarate</strong>, y quiero compartir un poco de mi historia contigo. Soy Licenciado en Seguridad con Orientación en Investigación Criminal y Analista en Sistemas. Tuve la suerte de estudiar en el IUPFA y en el Instituto Superior ORT, donde no solo aprendí, sino que me rodeé de personas increíbles que se convirtieron en parte de mi familia profesional.</p>
+                            </div>
+                        </div>
+
+                        <div class="about-section">
+                            <div class="about-image">
+                                <img src="images/sobremi/sobreMi1Bis.png" alt="Ivan como oficial de policía" />
+                            </div>
+                            <div class="about-text">
+                                <p>Por amor a mi bandera, me recibí de <strong>oficial de policía</strong> en la Policía Federal Argentina, que es una familia que uno aprende a querer. Esta experiencia me enseñó valores fundamentales que llevo a todo lo que hago: compromiso, servicio y trabajo en equipo. Es algo que quiero transmitir a mi audiencia: la importancia de servir con honor.</p>
+                            </div>
+                        </div>
+
+                        <div class="about-section">
+                            <div class="about-image">
+                                <img src="images/sobremi/sobreMi2.png" alt="Ivan programando" />
+                            </div>
+                            <div class="about-text">
+                                <p>La programación es mi pasión, y soy un verdadero entusiasta de la Inteligencia Artificial. Creo firmemente que la IA no viene a reemplazarnos, sino a potenciarnos. Como me gusta compartir con mi audiencia: <em>"el que abraza la tecnología, crece junto con ella"</em>. Actualmente trabajo en el Ministerio de Seguridad Nacional, un lugar que realmente amo y que me ha permitido crecer enormemente en bases de datos y desarrollo de SaaS y microservicios.</p>
+                            </div>
+                        </div>
+
+                        <div class="about-section">
+                            <div class="about-image">
+                                <img src="images/sobremi/sobreMi3.png" alt="Ivan entrenando" />
+                            </div>
+                            <div class="about-text">
+                                <p>En mis tiempos libres, me gusta mantenerme activo y entrenar. Antes era muy fanático del running, pero ahora me enfoqué en el levantamiento de pesas. Voy al gimnasio con la eterna esperanza de llegar en forma al próximo verano (que siempre parece lejano, ja!). Como les digo a quienes me siguen: <em>"la constancia supera al talento"</em>. Aunque claro, hay un pequeño obstáculo...</p>
+                            </div>
+                        </div>
+
+                        <div class="about-section">
+                            <div class="about-image">
+                                <img src="images/sobremi/sobremi4.png" alt="Ivan cocinando" />
+                            </div>
+                            <div class="about-text">
+                                <p>...¡me encanta la comida! No me privo de nada rico, y además disfruto mucho cocinando. Sin ser presumido, pero cada vez que invito a casa, la gente siempre repite. Me gusta pensar que compartir una buena comida es una de las mejores formas de construir vínculos y lazos genuinos. Desde pastas caseras hasta asados dominicales, cocinar me conecta con mis raíces y me permite expresar creatividad fuera del código.</p>
+                            </div>
+                        </div>
+
+                        <div class="about-section">
+                            <div class="about-image">
+                                <img src="images/sobremi/SobreMi5.png" alt="Ivan con su familia" />
+                            </div>
+                            <div class="about-text">
+                                <p>Cuando estoy desocupado, uno de mis hobbies favoritos es pasar tiempo con mi familia. Somos muy unidos y casi no hacemos nada sin estar los tres juntos. Ya sea un asado el domingo, una película en casa, o simplemente charlar en el patio, esos momentos son los que realmente me cargan las pilas. Con mi audiencia siempre hablo de la importancia del equilibrio, y mi familia es mi ancla y mi motivación para seguir creciendo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Crear la ventana usando el WindowManager
+            const aboutWindow = this.windowManager.createWindow({
+                id: 'about-me',
+                title: 'Sobre Mí - Ivan Agustin Zarate',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/User Accounts.png',
+                content: content,
+                width: 700,
+                height: 600,
+                resizable: true,
+                maximizable: true
+            });
+
+            // Marcar como aplicación en ejecución
+            this.runningApps.set('about-me', 'about-me');
+
+            // Configurar cleanup cuando se cierre la ventana
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.removedNodes.length > 0) {
+                        mutation.removedNodes.forEach((node) => {
+                            if (node === aboutWindow) {
+                                console.log('About Me window removed, cleaning up...');
+                                this.closeApp('about-me');
+                                observer.disconnect();
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Observar cambios en el contenedor de ventanas
+            if (aboutWindow.parentNode) {
+                observer.observe(aboutWindow.parentNode, { childList: true });
+            }
+
+            console.log('About Me window created successfully');
+            return aboutWindow;
+
+        } catch (error) {
+            console.error("No se pudo abrir 'Sobre Mí':", error);
+            
+            // Mostrar una ventana de error al usuario
+            if (this.windowManager) {
+                this.windowManager.createWindow({
+                    id: 'error-aboutme',
+                    title: 'Error',
+                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/User Accounts.png',
+                    content: `
+                        <div style="padding: 20px; text-align: center;">
+                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Sobre Mí'</strong></div>
+                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <button onclick="this.closest('.window').remove()">OK</button>
+                        </div>
+                    `,
+                    width: 400,
+                    height: 200,
+                    resizable: false
+                });
+            } else {
+                // Fallback si WindowManager no está disponible
+                alert(`Error: No se pudo abrir Sobre Mí. ${error.message}`);
+            }
+        }
     }
     
-    showError(message) {
-        if (window.zarateXP?.soundManager) {
-            window.zarateXP.soundManager.playError();
-        }
-        
+    // --- Métodos auxiliares ---
+    
+    showPlaceholder(appName) {
         const content = `
-            <div class="error-dialog">
-                <div class="error-icon">❌</div>
-                <div class="error-message">${message}</div>
-                <button onclick="window.zarateXP.windowManager.closeWindow(this.closest('.window').getAttribute('data-window-id'))">OK</button>
+            <div style="padding: 20px; text-align: center;">
+                <h2>${appName}</h2>
+                <p>Esta aplicación está en desarrollo.</p>
+                <p>Próximamente estará disponible.</p>
             </div>
         `;
         
-        this.createWindow('error-' + Date.now(), 'Error', content, {
-            width: 300,
-            height: 150,
-            resizable: false,
-            maximizable: false,
-            minimizable: false
-        });
+        // If window manager is available, create a window
+        if (this.windowManager) {
+            return this.windowManager.createWindow({
+                id: `placeholder-${Date.now()}`,
+                title: appName,
+                content: content,
+                width: 400,
+                height: 300
+            });
+        }
+    }
+    
+    showError(message) {
+        // If window manager is available, create an error window
+        if (this.windowManager) {
+            const content = `
+                <div style="padding: 20px; text-align: center;">
+                    <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                    <div style="margin-bottom: 20px;">${message}</div>
+                    <button onclick="this.closest('.window').remove()">OK</button>
+                </div>
+            `;
+            
+            return this.windowManager.createWindow({
+                id: `error-${Date.now()}`,
+                title: 'Error',
+                content: content,
+                width: 300,
+                height: 200,
+                resizable: false
+            });
+        } else {
+            // Fallback to alert if window manager not available
+            alert(message);
+        }
+    }
+    
+    closeApp(appId) {
+        // Cleanup específico para diferentes aplicaciones
+        if (appId === 'winamp') {
+            // Limpiar audio del contenedor frameless
+            const winampContainer = document.querySelector('.winamp-frameless-container');
+            if (winampContainer) {
+                // Pausar y limpiar audio
+                if (winampContainer._audioElement) {
+                    winampContainer._audioElement.pause();
+                    winampContainer._audioElement.src = '';
+                    winampContainer._audioElement = null;
+                }
+                
+                // Limpiar event listeners de arrastre
+                if (winampContainer._dragHandlers) {
+                    document.removeEventListener('mousemove', winampContainer._dragHandlers.mousemove);
+                    document.removeEventListener('mouseup', winampContainer._dragHandlers.mouseup);
+                }
+                
+                // Remover del DOM
+                winampContainer.remove();
+            }
+            
+            // Remover de la taskbar
+            const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
+            if (taskbarManager) {
+                taskbarManager.removeProgram('winamp');
+            }
+        } else if (appId === 'my-computer') {
+            console.log('Cleaning up Mi PC application');
+            // Aquí se puede añadir cleanup específico para Mi PC si es necesario
+        }
+        
+        this.runningApps.delete(appId);
+        console.log(`App ${appId} closed and removed from running apps`);
+    }
+    
+    getApp(appId) {
+        return this.apps.get(appId);
+    }
+    
+    getAllApps() {
+        return Array.from(this.apps.values());
     }
 }
 
-// Add app-specific styles
-const style = document.createElement('style');
-style.textContent = `
-    /* About Me Styles */
-    .about-me-content {
-        padding: 20px;
-        text-align: center;
-    }
-    
-    .profile-image {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        border: 3px solid #0054E3;
-        margin-bottom: 10px;
-    }
-    
-    .tagline {
-        color: #666;
-        font-style: italic;
-        margin-bottom: 20px;
-    }
-    
-    .info-section {
-        text-align: left;
-        margin-top: 20px;
-    }
-    
-    .info-section h3 {
-        color: #0054E3;
-        margin-top: 15px;
-    }
-    
-    /* Projects Styles */
-    .projects-content {
-        padding: 10px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 15px;
-        padding: 15px;
-        overflow-y: auto;
-        flex: 1;
-    }
-    
-    .project-card {
-        border: 1px solid #ccc;
-        padding: 15px;
-        background: white;
-    }
-    
-    .project-card img {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        margin-bottom: 10px;
-    }
-    
-    .tech-stack {
-        margin: 10px 0;
-    }
-    
-    .tech-tag {
-        display: inline-block;
-        background: #e0e0e0;
-        padding: 2px 8px;
-        margin: 2px;
-        font-size: 12px;
-        border-radius: 3px;
-    }
-    
-    /* Terminal Styles */
-    .terminal-content {
-        background: black;
-        color: #00ff00;
-        font-family: 'Courier New', monospace;
-        padding: 10px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .terminal-output {
-        flex: 1;
-        overflow-y: auto;
-        white-space: pre-wrap;
-    }
-    
-    .terminal-input-line {
-        display: flex;
-        align-items: center;
-    }
-    
-    .terminal-prompt {
-        margin-right: 5px;
-    }
-    
-    .terminal-input {
-        background: transparent;
-        border: none;
-        color: #00ff00;
-        font-family: inherit;
-        font-size: inherit;
-        flex: 1;
-        outline: none;
-    }
-    
-    /* Notepad Styles */
-    .notepad-content {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    
-    .notepad-textarea {
-        flex: 1;
-        border: none;
-        padding: 5px;
-        font-family: 'Courier New', monospace;
-        resize: none;
-        outline: none;
-    }
-    
-    /* Calculator Styles */
-    .calculator-content {
-        padding: 10px;
-        background: #f0f0f0;
-    }
-    
-    .calc-display {
-        width: 100%;
-        padding: 5px;
-        text-align: right;
-        font-size: 18px;
-        margin-bottom: 10px;
-    }
-    
-    .calc-buttons {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 5px;
-    }
-    
-    .calc-btn {
-        padding: 10px;
-        font-size: 14px;
-    }
-    
-    .calc-zero {
-        grid-column: span 2;
-    }
-    
-    .calc-equals {
-        grid-row: span 2;
-    }
-    
-    /* Control Panel Styles */
-    .control-panel-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        padding: 20px;
-    }
-    
-    .control-item {
-        text-align: center;
-        cursor: pointer;
-        padding: 10px;
-    }
-    
-    .control-item:hover {
-        background: #e0e0e0;
-    }
-    
-    .control-item img {
-        width: 48px;
-        height: 48px;
-        display: block;
-        margin: 0 auto 5px;
-    }
-    
-    /* Error Dialog Styles */
-    .error-dialog {
-        padding: 20px;
-        text-align: center;
-    }
-    
-    .error-icon {
-        font-size: 48px;
-        margin-bottom: 10px;
-    }
-    
-    .error-message {
-        margin-bottom: 20px;
-    }
-`;
-document.head.appendChild(style);
-
 // Legacy support
 window.AppManager = AppManager;
-            

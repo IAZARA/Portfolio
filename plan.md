@@ -1,94 +1,32 @@
-# Plan for Windows XP Loading Bar Animation
+# Plan para la integración nativa de Winamp
 
-## Objective
-To modify the existing loading animation in `ZarateXP` to mimic the classic Windows XP loading bar, featuring three blue squares that slide across the bar, disappear, and then reappear from the beginning in a continuous loop.
+## Objetivo
+Modificar la aplicación de Winamp para que su apariencia y comportamiento sean idénticos a los de la versión nativa de Windows XP. Esto implica dos puntos clave:
+1.  **Apariencia:** Eliminar completamente el contenedor de la ventana (bordes azules, barra de título, etc.) para que solo el componente de Winamp sea visible y arrastrable.
+2.  **Funcionalidad:** Implementar correctamente la capacidad de reproducir la canción `track.mp3` y mostrar el título "Paint It Black" en la pantalla de Winamp al hacer clic en el botón de reproducción.
 
-## Current State Analysis
-- The `boot.css` file defines the styling for `.loading-block` elements and an animation named `loading-progress`.
-- The `index.html` file currently contains 28 `<div class="loading-block"></div>` elements within the `<div class="loading-bar">`.
-- The current `loading-progress` animation makes each block appear and disappear with a staggered delay, rather than sliding.
+## Análisis del Problema
+1.  **Contenedor de Ventana Incorrecto:** La aplicación de Winamp se carga actualmente dentro de una ventana genérica del sistema, lo que le añade un marco y una barra de título no deseados. La solución no es ocultar los bordes con CSS, sino evitar que Winamp se cargue en ese contenedor.
+2.  **Lógica de Reproducción Fallida:** El script `winamp-logic.js` anterior no funcionó porque los selectores (`.play`, `.song-title`) eran suposiciones. Es necesario inspeccionar la estructura interna real del componente de Winamp para identificar los elementos correctos.
 
-## Proposed Changes
+## Pasos para la Solución
 
-### 1. Modify `ZarateXP/index.html`
-- **Action:** Reduce the number of `<div class="loading-block"></div>` elements.
-- **Details:** Inside the `<div class="loading-bar">` element, keep only **three** `<div class="loading-block"></div>` elements.
+### 1. Modificar la Creación de Ventanas
+- **Analizar `js/apps.js` y `js/main.js`:** Investigaré estos archivos para entender cómo se crean y gestionan las ventanas de las aplicaciones.
+- **Crear una Ventana "sin marco" (Frameless):** Modificaré la lógica de creación de ventanas para que, si el programa a abrir es "winamp", se genere un contenedor especial sin los elementos de la ventana estándar. Esto asegurará que solo la interfaz de Winamp sea visible.
+- **Asegurar que sea Arrastrable:** Me aseguraré de que la nueva ventana sin marco siga siendo arrastrable, utilizando la barra de título del propio Winamp como punto de anclaje.
 
-```html
-<div class="loading-bar-container">
-    <div class="loading-bar">
-        <div class="loading-block"></div>
-        <div class="loading-block"></div>
-        <div class="loading-block"></div>
-    </div>
-</div>
-```
+### 2. Implementar la Lógica de Audio y Título
+- **Inspeccionar el Componente Winamp:** Analizaré el código de `js/winamp.js` para encontrar los selectores de clase o ID correctos para:
+    - El botón de `play`.
+    - El botón de `stop`.
+    - El área donde se muestra el título de la canción.
+- **Actualizar `winamp-logic.js`:** Reescribiré el script con los selectores correctos. La lógica hará lo siguiente:
+    - Al pulsar "Play", comenzará la reproducción de `assets/winamp/track.mp3`.
+    - El título "Paint It Black" se mostrará en el display.
+    - Al pulsar "Stop", la reproducción se detendrá y el título se borrará.
+- **Integrar el Audio:** Me aseguraré de que el elemento `<audio>` se cree y gestione correctamente para evitar problemas de reproducción.
 
-### 2. Modify `ZarateXP/css/boot.css`
-- **Action:** Adjust styles for `.loading-bar` and `.loading-block`, and define a new keyframe animation.
-
-#### Update `.loading-bar`
-- **Details:**
-    - Add `justify-content: flex-start;` to ensure the blocks start from the left.
-    - Add `overflow: hidden;` to hide the blocks as they move out of the container, creating the illusion of disappearing.
-
-```css
-.loading-bar {
-    height: 100%;
-    display: flex;
-    gap: 2px; /* Keep existing gap */
-    padding: 0 2px; /* Keep existing padding */
-    justify-content: flex-start; /* New: Align blocks to the start */
-    overflow: hidden; /* New: Hide overflowing content */
-}
-```
-
-#### Update `.loading-block`
-- **Details:**
-    - Set a fixed `width` (e.g., `15px`) to make the blocks more square-like.
-    - Set `opacity: 1;` so they are always visible during their slide.
-    - Remove the existing `animation-delay` properties for `nth-child` as they will be handled by the new animation.
-    - Update the `animation` property to use the new `xp-loading-slide` keyframes.
-
-```css
-.loading-block {
-    width: 15px; /* Modified: Fixed width for square appearance */
-    height: 100%;
-    background: #316AC5;
-    opacity: 1; /* Modified: Always visible */
-    animation: xp-loading-slide 2s linear infinite; /* Modified: New animation */
-}
-
-/* Remove all existing .loading-block:nth-child(n) { animation-delay: ...; } rules */
-```
-
-#### Define `@keyframes xp-loading-slide`
-- **Details:** Create a new keyframe animation that moves the blocks horizontally across the `loading-bar-container`. The animation will loop infinitely. Each block will have a slightly different `animation-delay` to create the "chasing" effect.
-
-```css
-@keyframes xp-loading-slide {
-    0% {
-        transform: translateX(-100%); /* Start off-screen to the left */
-    }
-    100% {
-        transform: translateX(calc(300px + 100%)); /* Move across the 300px container + its own width */
-    }
-}
-
-/* Apply animation delays to each block using nth-child selectors */
-.loading-block:nth-child(1) {
-    animation-delay: 0s;
-}
-.loading-block:nth-child(2) {
-    animation-delay: 0.2s; /* Adjust delay for chasing effect */
-}
-.loading-block:nth-child(3) {
-    animation-delay: 0.4s; /* Adjust delay for chasing effect */
-}
-```
-
-## Verification
-After implementing the changes, I will:
-1.  Open `index.html` in a web browser to visually confirm the new loading animation.
-2.  Ensure the three squares slide smoothly, disappear, and reappear from the beginning in a continuous loop, matching the Windows XP style.
-3.  Check for any layout or styling regressions on the boot screen.
+### 3. Limpieza y Verificación
+- **Eliminar Archivos Antiguos:** Borraré el archivo `winamp-integration.css` que ya no es necesario para evitar confusión.
+- **Verificación Final:** Probaré la aplicación completa para asegurar que Winamp se vea y funcione como se espera, sin afectar al resto de las aplicaciones del escritorio.
