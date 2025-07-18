@@ -90,11 +90,11 @@ export class AppManager {
         
         this.registerApp({
             id: 'projects',
-            name: 'My Projects',
-            icon: './images/icons/folder-projects.png',
+            name: 'Mis Proyectos',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Internet Explorer 6.png',
             category: 'documents',
-            description: 'View my portfolio projects',
-            handler: () => this.showPlaceholder('My Projects')
+            description: 'Explora mis proyectos de desarrollo',
+            handler: () => this._openProjectsExplorer()
         });
         
         this.registerApp({
@@ -103,16 +103,36 @@ export class AppManager {
             icon: './images/icons/pdf.png',
             category: 'documents',
             description: 'View my resume',
-            handler: () => this.showPlaceholder('Resume')
+            handler: () => this._openResume()
         });
         
         this.registerApp({
             id: 'contact',
-            name: 'Contact',
-            icon: './images/icons/email.png',
+            name: 'Mi Contacto',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png',
             category: 'internet',
-            description: 'Get in touch',
-            handler: () => this.showPlaceholder('Contact')
+            description: 'Envíame un mensaje',
+            handler: () => this._openContact()
+        });
+        
+        // Registrar Buscaminas
+        this.registerApp({
+            id: 'minesweeper',
+            name: 'Buscaminas',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Minesweeper.png',
+            category: 'games',
+            description: 'Juego clásico de Buscaminas',
+            handler: () => this._openMinesweeper()
+        });
+        
+        // Registrar Paint
+        this.registerApp({
+            id: 'paint',
+            name: 'Paint',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Paint.png',
+            category: 'accessories',
+            description: 'Editor de imágenes Paint',
+            handler: () => this._openPaint()
         });
     }
     
@@ -576,7 +596,15 @@ export class AppManager {
 
             // Crear contenido de la ventana "Sobre Mí"
             const content = `
-                <div class="about-me-container">
+                <div id="about-me-window">
+                    <div class="about-me-menu-bar">
+                        <span><u>A</u>rchivo</span>
+                        <span><u>E</u>dición</span>
+                        <span><u>V</u>er</span>
+                        <span><u>H</u>erramientas</span>
+                        <span>A<u>y</u>uda</span>
+                    </div>
+                    <div class="about-me-container">
                     <div class="about-sections">
                         <div class="about-section">
                             <div class="about-image">
@@ -631,6 +659,7 @@ export class AppManager {
                                 <p>Cuando estoy desocupado, uno de mis hobbies favoritos es pasar tiempo con mi familia. Somos muy unidos y casi no hacemos nada sin estar los tres juntos. Ya sea un asado el domingo, una película en casa, o simplemente charlar en el patio, esos momentos son los que realmente me cargan las pilas. Con mi audiencia siempre hablo de la importancia del equilibrio, y mi familia es mi ancla y mi motivación para seguir creciendo.</p>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
             `;
@@ -700,6 +729,799 @@ export class AppManager {
             }
         }
     }
+
+    async _openContact() {
+        // Prevenir que se abra más de una ventana de "Contacto"
+        if (this.runningApps.has('contact')) {
+            console.log('Contact is already running');
+            // Intentar enfocar la ventana existente si el WindowManager lo permite
+            if (this.windowManager && this.windowManager.focusWindow) {
+                this.windowManager.focusWindow('contact');
+            }
+            return;
+        }
+
+        try {
+            // Verificar que WindowManager esté disponible
+            if (!this.windowManager) {
+                throw new Error('WindowManager no está disponible');
+            }
+
+            // Cargar el contenido del componente de contacto
+            console.log('Loading contacto.html...');
+            const response = await fetch('./components/contacto.html');
+            if (!response.ok) {
+                throw new Error(`Error al cargar contacto.html: ${response.statusText} (${response.status})`);
+            }
+            const htmlContent = await response.text();
+
+            // Crear la ventana usando el WindowManager
+            const contactWindow = this.windowManager.createWindow({
+                id: 'contact',
+                title: 'Mi Contacto - Ivan Agustin Zarate',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png',
+                content: htmlContent,
+                width: 500,
+                height: 650,
+                resizable: true,
+                maximizable: true
+            });
+
+            // Marcar como aplicación en ejecución
+            this.runningApps.set('contact', 'contact');
+
+            // Configurar la funcionalidad del formulario
+            setTimeout(() => {
+                this._setupContactForm(contactWindow);
+            }, 100);
+
+            // Configurar cleanup cuando se cierre la ventana
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.removedNodes.length > 0) {
+                        mutation.removedNodes.forEach((node) => {
+                            if (node === contactWindow) {
+                                console.log('Contact window removed, cleaning up...');
+                                this.closeApp('contact');
+                                observer.disconnect();
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Observar cambios en el contenedor de ventanas
+            if (contactWindow.parentNode) {
+                observer.observe(contactWindow.parentNode, { childList: true });
+            }
+
+            console.log('Contact window created successfully');
+            return contactWindow;
+
+        } catch (error) {
+            console.error("No se pudo abrir 'Mi Contacto':", error);
+            
+            // Mostrar una ventana de error al usuario
+            if (this.windowManager) {
+                this.windowManager.createWindow({
+                    id: 'error-contact',
+                    title: 'Error',
+                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png',
+                    content: `
+                        <div style="padding: 20px; text-align: center;">
+                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mi Contacto'</strong></div>
+                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <button onclick="this.closest('.window').remove()">OK</button>
+                        </div>
+                    `,
+                    width: 400,
+                    height: 200,
+                    resizable: false
+                });
+            } else {
+                // Fallback si WindowManager no está disponible
+                alert(`Error: No se pudo abrir Mi Contacto. ${error.message}`);
+            }
+        }
+    }
+
+    _setupContactForm(contactWindow) {
+        try {
+            const form = contactWindow.querySelector('#contact-form');
+            const sendBtn = contactWindow.querySelector('.toolbar-btn[title*="Send"]') || 
+                           contactWindow.querySelector('.toolbar-btn img[src*="Email"]')?.parentElement;
+
+            if (!form) {
+                console.error('No se encontró el formulario de contacto');
+                return;
+            }
+
+            // Configurar envío del formulario
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                
+                const name = form.querySelector('#contact-name').value || "Visitor from ZarateXP";
+                const email = form.querySelector('#contact-email').value;
+                const subject = form.querySelector('#contact-subject').value;
+                const body = form.querySelector('#contact-body').value;
+
+                if (!email || !subject || !body) {
+                    this._showValidationError('Por favor completa todos los campos requeridos: Email, Asunto y Mensaje');
+                    return;
+                }
+
+                // Construir el mensaje completo
+                const fullMessage = `Hola Ivan,
+
+De: ${email}
+Nombre: ${name}
+
+${body}
+
+---
+Enviado desde ZarateXP Portfolio`;
+
+                // Crear enlace mailto
+                const mailtoLink = `mailto:ivan.agustin.95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
+                
+                // Abrir cliente de correo
+                window.open(mailtoLink, '_blank');
+                
+                // Mostrar confirmación
+                this._showContactConfirmation(contactWindow);
+            };
+
+            // Configurar eventos de envío
+            form.addEventListener('submit', handleSubmit);
+            
+            // Configurar botón de envío en toolbar
+            if (sendBtn) {
+                sendBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleSubmit(e);
+                });
+            }
+
+            // Configurar funcionalidad de toolbar buttons
+            this._setupToolbarButtons(contactWindow, form);
+
+            // Enfocar el primer campo editable
+            const firstInput = form.querySelector('#contact-email');
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 200);
+            }
+
+            console.log('Contact form configured successfully');
+
+        } catch (error) {
+            console.error('Error configurando formulario de contacto:', error);
+        }
+    }
+
+    _setupToolbarButtons(contactWindow, form) {
+        try {
+            // Botón "New Message" - limpiar formulario
+            const newMsgBtn = contactWindow.querySelector('.toolbar-btn img[src*="Outlook"]')?.parentElement;
+            if (newMsgBtn) {
+                newMsgBtn.addEventListener('click', () => {
+                    form.reset();
+                    const firstInput = form.querySelector('#contact-email');
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+                });
+            }
+
+            // Botón "Libreta de Direcciones" - acción placeholder
+            const addressBtn = contactWindow.querySelector('.toolbar-btn img[src*="Address"]')?.parentElement;
+            if (addressBtn) {
+                addressBtn.addEventListener('click', () => {
+                    this._showInfoDialog('Libreta de Direcciones', 'Contáctame directamente en ivan.agustin.95@gmail.com');
+                });
+            }
+
+            // Botones de edición (Cut, Copy, Paste) - funcionalidad básica
+            const cutBtn = contactWindow.querySelector('.toolbar-btn img[src*="Cut"]')?.parentElement;
+            const copyBtn = contactWindow.querySelector('.toolbar-btn img[src*="Copy"]')?.parentElement;
+            const pasteBtn = contactWindow.querySelector('.toolbar-btn img[src*="Paste"]')?.parentElement;
+
+            if (cutBtn) {
+                cutBtn.addEventListener('click', () => {
+                    document.execCommand('cut');
+                });
+            }
+
+            if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    document.execCommand('copy');
+                });
+            }
+
+            if (pasteBtn) {
+                pasteBtn.addEventListener('click', () => {
+                    document.execCommand('paste');
+                });
+            }
+
+        } catch (error) {
+            console.error('Error configurando botones de toolbar:', error);
+        }
+    }
+
+    _showValidationError(message) {
+        if (this.windowManager) {
+            this.windowManager.createWindow({
+                id: 'validation-error',
+                title: 'Error de Entrada',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png',
+                content: `
+                    <div style="padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; color: #FF0000; margin-bottom: 10px;">⚠️</div>
+                        <div style="margin-bottom: 20px; color: #000;">${message}</div>
+                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px; min-width: 75px;">Aceptar</button>
+                    </div>
+                `,
+                width: 350,
+                height: 150,
+                resizable: false,
+                maximizable: false
+            });
+        } else {
+            alert(message);
+        }
+    }
+
+    _showInfoDialog(title, message) {
+        if (this.windowManager) {
+            this.windowManager.createWindow({
+                id: 'info-dialog',
+                title: title,
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png',
+                content: `
+                    <div style="padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; color: #0066CC; margin-bottom: 10px;">ℹ️</div>
+                        <div style="margin-bottom: 20px; color: #000;">${message}</div>
+                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px; min-width: 75px;">Aceptar</button>
+                    </div>
+                `,
+                width: 350,
+                height: 150,
+                resizable: false,
+                maximizable: false
+            });
+        } else {
+            alert(message);
+        }
+    }
+
+    async _openProjectsExplorer() {
+        // Prevenir que se abra más de una ventana de "Mis Proyectos"
+        if (this.runningApps.has('projects')) {
+            console.log('Projects Explorer is already running');
+            if (this.windowManager && this.windowManager.focusWindow) {
+                this.windowManager.focusWindow('projects');
+            }
+            return;
+        }
+
+        try {
+            // Verificar que WindowManager esté disponible
+            if (!this.windowManager) {
+                throw new Error('WindowManager no está disponible');
+            }
+
+            // Cargar el contenido del componente de proyectos
+            console.log('Loading proyectos-explorer.html...');
+            const response = await fetch('./components/proyectos-explorer.html');
+            if (!response.ok) {
+                throw new Error(`Error al cargar proyectos-explorer.html: ${response.statusText} (${response.status})`);
+            }
+            const htmlContent = await response.text();
+
+            // Crear la ventana usando el WindowManager
+            const projectsWindow = this.windowManager.createWindow({
+                id: 'projects',
+                title: 'Mis Proyectos - Explorer',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Internet Explorer 6.png',
+                content: htmlContent,
+                width: 800,
+                height: 600,
+                resizable: true,
+                maximizable: true
+            });
+
+            // Marcar como aplicación en ejecución
+            this.runningApps.set('projects', 'projects');
+
+            // Configurar la funcionalidad del explorer
+            setTimeout(() => {
+                this._setupProjectsExplorer(projectsWindow);
+            }, 100);
+
+            // Configurar cleanup cuando se cierre la ventana
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.removedNodes.length > 0) {
+                        mutation.removedNodes.forEach((node) => {
+                            if (node === projectsWindow) {
+                                console.log('Projects window removed, cleaning up...');
+                                this.closeApp('projects');
+                                observer.disconnect();
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Observar cambios en el contenedor de ventanas
+            if (projectsWindow.parentNode) {
+                observer.observe(projectsWindow.parentNode, { childList: true });
+            }
+
+            console.log('Projects Explorer window created successfully');
+            return projectsWindow;
+
+        } catch (error) {
+            console.error("No se pudo abrir 'Mis Proyectos':", error);
+            
+            // Mostrar una ventana de error al usuario
+            if (this.windowManager) {
+                this.windowManager.createWindow({
+                    id: 'error-projects',
+                    title: 'Error',
+                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Internet Explorer 6.png',
+                    content: `
+                        <div style="padding: 20px; text-align: center;">
+                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mis Proyectos'</strong></div>
+                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <button onclick="this.closest('.window').remove()">Aceptar</button>
+                        </div>
+                    `,
+                    width: 400,
+                    height: 200,
+                    resizable: false
+                });
+            } else {
+                // Fallback si WindowManager no está disponible
+                alert(`Error: No se pudo abrir Mis Proyectos. ${error.message}`);
+            }
+        }
+    }
+
+    _setupProjectsExplorer(projectsWindow) {
+        try {
+            // Configurar navegación del árbol de carpetas
+            this._setupTreeNavigation(projectsWindow);
+            
+            // Configurar botones de la toolbar
+            this._setupExplorerToolbar(projectsWindow);
+            
+            // Configurar vista de contenido
+            this._setupContentView(projectsWindow);
+            
+            // Cargar contenido inicial
+            this._loadFolderContent(projectsWindow, 'root');
+
+            console.log('Projects Explorer configured successfully');
+
+        } catch (error) {
+            console.error('Error configurando Projects Explorer:', error);
+        }
+    }
+
+    _setupTreeNavigation(projectsWindow) {
+        const treeItems = projectsWindow.querySelectorAll('.tree-item');
+        
+        treeItems.forEach(item => {
+            const content = item.querySelector('.tree-item-content');
+            const expand = item.querySelector('.tree-expand');
+            
+            // Click en el contenido del item
+            content.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Remover selección anterior
+                projectsWindow.querySelectorAll('.tree-item.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                // Seleccionar el item actual
+                item.classList.add('selected');
+                
+                // Actualizar barra de direcciones
+                const path = item.getAttribute('data-path') || 'Mis Proyectos';
+                const pathInput = projectsWindow.querySelector('#current-path');
+                if (pathInput) {
+                    pathInput.value = path;
+                }
+                
+                // Cargar contenido de la carpeta
+                const folder = item.getAttribute('data-folder');
+                this._loadFolderContent(projectsWindow, folder);
+            });
+            
+            // Click en el botón de expandir/contraer
+            if (expand) {
+                expand.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    if (item.classList.contains('expanded')) {
+                        item.classList.remove('expanded');
+                        expand.textContent = '+';
+                        const icon = item.querySelector('.tree-icon');
+                        if (icon) {
+                            icon.src = './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Closed.png';
+                        }
+                    } else {
+                        item.classList.add('expanded');
+                        expand.textContent = '−';
+                        const icon = item.querySelector('.tree-icon');
+                        if (icon) {
+                            icon.src = './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Opened.png';
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    _setupExplorerToolbar(projectsWindow) {
+        // Botón de vista de íconos
+        const iconViewBtn = projectsWindow.querySelector('[data-view="icons"]');
+        const listViewBtn = projectsWindow.querySelector('[data-view="list"]');
+        
+        if (iconViewBtn) {
+            iconViewBtn.addEventListener('click', () => {
+                iconViewBtn.classList.add('active');
+                if (listViewBtn) listViewBtn.classList.remove('active');
+                this._switchView(projectsWindow, 'icons');
+            });
+        }
+        
+        if (listViewBtn) {
+            listViewBtn.addEventListener('click', () => {
+                listViewBtn.classList.add('active');
+                if (iconViewBtn) iconViewBtn.classList.remove('active');
+                this._switchView(projectsWindow, 'list');
+            });
+        }
+
+        // Botón de carpetas (toggle panel izquierdo)
+        const foldersBtn = projectsWindow.querySelector('#btn-folders');
+        if (foldersBtn) {
+            foldersBtn.addEventListener('click', () => {
+                const leftPanel = projectsWindow.querySelector('.explorer-left-panel');
+                const splitter = projectsWindow.querySelector('.explorer-splitter');
+                
+                if (leftPanel && splitter) {
+                    const isVisible = leftPanel.style.display !== 'none';
+                    leftPanel.style.display = isVisible ? 'none' : 'flex';
+                    splitter.style.display = isVisible ? 'none' : 'block';
+                    
+                    // Cambiar estado del botón
+                    if (isVisible) {
+                        foldersBtn.classList.remove('active');
+                    } else {
+                        foldersBtn.classList.add('active');
+                    }
+                }
+            });
+        }
+    }
+
+    _setupContentView(projectsWindow) {
+        const contentArea = projectsWindow.querySelector('#explorer-content');
+        if (!contentArea) return;
+
+        // Configurar eventos de doble clic para abrir proyectos
+        contentArea.addEventListener('dblclick', (e) => {
+            const projectItem = e.target.closest('.project-item');
+            if (projectItem) {
+                const projectId = projectItem.getAttribute('data-project-id');
+                if (projectId) {
+                    this._openProjectDetails(projectsWindow, projectId);
+                }
+            }
+        });
+
+        // Configurar selección de elementos
+        contentArea.addEventListener('click', (e) => {
+            const projectItem = e.target.closest('.project-item');
+            
+            if (projectItem) {
+                // Remover selección anterior
+                contentArea.querySelectorAll('.project-item.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                // Seleccionar el item actual
+                projectItem.classList.add('selected');
+                
+                // Actualizar barra de estado
+                this._updateStatusBar(projectsWindow, projectItem);
+            } else {
+                // Click en área vacía, deseleccionar todo
+                contentArea.querySelectorAll('.project-item.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                this._updateStatusBar(projectsWindow);
+            }
+        });
+    }
+
+    _loadFolderContent(projectsWindow, folder) {
+        const contentArea = projectsWindow.querySelector('#explorer-content');
+        const statusCount = projectsWindow.querySelector('#items-count');
+        
+        if (!contentArea) return;
+
+        // Mostrar indicador de carga
+        contentArea.innerHTML = `
+            <div class="loading-message">
+                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Opened.png" width="32" height="32"/>
+                <p>Cargando proyectos...</p>
+            </div>
+        `;
+
+        // Simular carga asíncrona
+        setTimeout(() => {
+            const projects = this._getProjectsData(folder);
+            const viewMode = projectsWindow.querySelector('.view-btn.active').getAttribute('data-view') || 'icons';
+            
+            this._renderProjects(contentArea, projects, viewMode);
+            
+            // Actualizar contador
+            if (statusCount) {
+                statusCount.textContent = `${projects.length} elemento${projects.length !== 1 ? 's' : ''}`;
+            }
+        }, 300);
+    }
+
+    _getProjectsData(folder) {
+        const projectsData = {
+            'root': [
+                { id: 'web-folder', name: 'Desarrollo Web', type: 'folder', icon: '🌐', description: 'Proyectos de desarrollo web', dataFolder: 'web' },
+                { id: 'ai-folder', name: 'IA y Automatización', type: 'folder', icon: '🤖', description: 'Proyectos de IA y automatización', dataFolder: 'ai' }
+            ],
+            'web': [
+                {
+                    id: 'osintargy',
+                    name: 'OSINTArgy',
+                    type: 'project',
+                    icon: '🔍',
+                    description: 'Plataforma OSINT para la Comunidad Hispana',
+                    url: 'https://osintargy.online',
+                    technologies: ['React 18', 'Node.js', 'MongoDB', 'Canvas HTML5', 'Vite'],
+                    category: 'OSINT Platform',
+                    status: 'Activo',
+                    details: 'OSINTArgy es una plataforma integral de inteligencia de fuentes abiertas (OSINT) diseñada específicamente para democratizar el acceso a herramientas y conocimientos especializados en la comunidad hispanohablante de Argentina y Latinoamérica. Características principales: Interfaz tipo galaxia con visualización interactiva, generador avanzado de Google Dorks con 400+ dorks especializados, herramientas OSINT especializadas para email, username y análisis de archivos, componentes educativos con academia OSINT y juego detective. Stack tecnológico: React 18 + Vite, Canvas HTML5 para visualizaciones, Node.js 18+ + Express.js, MongoDB con autenticación JWT. Impacto: Democratización del conocimiento OSINT en español, enfoque educativo con propósito social.'
+                },
+                {
+                    id: 'zaratexp',
+                    name: 'ZarateXP Portfolio',
+                    type: 'project',
+                    icon: './microsoft-windosXP.png',
+                    description: 'Portfolio interactivo estilo Windows XP',
+                    url: '#',
+                    technologies: ['HTML', 'CSS', 'JavaScript'],
+                    category: 'Portfolio',
+                    status: 'Activo',
+                    details: 'Portfolio personal desarrollado como una simulación completa del sistema operativo Windows XP, incluyendo escritorio interactivo, ventanas funcionales, y aplicaciones integradas.'
+                }
+            ],
+            'ai': [
+            ]
+        };
+
+        return projectsData[folder] || [];
+    }
+
+    _renderProjects(contentArea, projects, viewMode) {
+        if (viewMode === 'icons') {
+            this._renderIconView(contentArea, projects);
+        } else {
+            this._renderListView(contentArea, projects);
+        }
+    }
+
+    _renderIconView(contentArea, projects) {
+        const iconsHtml = projects.map(project => {
+            const iconHtml = project.icon.startsWith('./') || project.icon.includes('.png') || project.icon.includes('.jpg') || project.icon.includes('.svg') 
+                ? `<img src="${project.icon}" width="32" height="32" alt="${project.name}" style="object-fit: contain;"/>` 
+                : project.icon;
+            
+            return `
+                <div class="project-item" data-project-id="${project.id}" data-type="${project.type}" title="${project.description}">
+                    <div class="project-icon">
+                        ${iconHtml}
+                    </div>
+                    <div class="project-name">${project.name}</div>
+                    <div class="project-details">${project.type === 'folder' ? 'Carpeta' : project.category}</div>
+                </div>
+            `;
+        }).join('');
+
+        contentArea.innerHTML = `<div class="icons-view">${iconsHtml}</div>`;
+    }
+
+    _renderListView(contentArea, projects) {
+        const listHtml = `
+            <div class="list-view">
+                <div class="list-header">
+                    <div class="list-header-row">
+                        <div class="list-header-cell">Nombre</div>
+                        <div class="list-header-cell">Tipo</div>
+                        <div class="list-header-cell">Categoría</div>
+                        <div class="list-header-cell">Estado</div>
+                    </div>
+                </div>
+                <div class="list-body">
+                    ${projects.map(project => {
+                        const iconHtml = project.icon.startsWith('./') || project.icon.includes('.png') || project.icon.includes('.jpg') || project.icon.includes('.svg') 
+                            ? `<img src="${project.icon}" width="16" height="16" alt="${project.name}" style="object-fit: contain;"/>` 
+                            : project.icon;
+                        
+                        return `
+                            <div class="list-row" data-project-id="${project.id}" data-type="${project.type}">
+                                <div class="list-cell">
+                                    <span class="list-cell-icon">${iconHtml}</span>
+                                    ${project.name}
+                                </div>
+                                <div class="list-cell">${project.type === 'folder' ? 'Carpeta' : 'Proyecto'}</div>
+                                <div class="list-cell">${project.category || '-'}</div>
+                                <div class="list-cell">${project.status || '-'}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+
+        contentArea.innerHTML = listHtml;
+    }
+
+    _switchView(projectsWindow, viewMode) {
+        const contentArea = projectsWindow.querySelector('#explorer-content');
+        const currentFolder = projectsWindow.querySelector('.tree-item.selected')?.getAttribute('data-folder') || 'root';
+        const projects = this._getProjectsData(currentFolder);
+        
+        this._renderProjects(contentArea, projects, viewMode);
+    }
+
+    _updateStatusBar(projectsWindow, selectedItem = null) {
+        const selectionInfo = projectsWindow.querySelector('#selection-info');
+        
+        if (selectedItem && selectionInfo) {
+            const projectName = selectedItem.querySelector('.project-name')?.textContent || '';
+            const projectType = selectedItem.getAttribute('data-type') || '';
+            selectionInfo.textContent = `${projectName} (${projectType === 'folder' ? 'Carpeta' : 'Proyecto'})`;
+        } else if (selectionInfo) {
+            const currentPath = projectsWindow.querySelector('#current-path')?.value || 'Mis Proyectos';
+            selectionInfo.textContent = currentPath;
+        }
+    }
+
+    _openProjectDetails(projectsWindow, projectId) {
+        const projects = this._getAllProjects();
+        const project = projects.find(p => p.id === projectId);
+        
+        if (!project) return;
+
+        if (project.type === 'folder') {
+            // Si es carpeta, navegar a ella
+            const folderMap = {
+                'web-folder': 'web',
+                'ai-folder': 'ai'
+            };
+            
+            const targetFolder = folderMap[projectId];
+            if (targetFolder) {
+                this._navigateToFolder(projectsWindow, targetFolder);
+            }
+        } else {
+            // Si es proyecto, mostrar detalles
+            this._showProjectDetails(project);
+        }
+    }
+
+    _getAllProjects() {
+        const allProjects = [];
+        const folders = ['root', 'web', 'ai'];
+        
+        folders.forEach(folder => {
+            allProjects.push(...this._getProjectsData(folder));
+        });
+        
+        return allProjects;
+    }
+
+    _navigateToFolder(projectsWindow, folder) {
+        // Seleccionar el item del árbol correspondiente
+        const treeItem = projectsWindow.querySelector(`[data-folder="${folder}"]`);
+        if (treeItem) {
+            // Simular click en el item del árbol
+            const content = treeItem.querySelector('.tree-item-content');
+            if (content) {
+                content.click();
+            }
+        }
+    }
+
+    _showProjectDetails(project) {
+        if (this.windowManager) {
+            const detailsContent = `
+                <div style="padding: 20px; font-family: 'Tahoma', sans-serif; font-size: 11px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                        <div style="font-size: 48px; margin-right: 16px;">${project.icon}</div>
+                        <div>
+                            <h2 style="margin: 0 0 8px 0; font-size: 16px; color: #1E4A8C;">${project.name}</h2>
+                            <p style="margin: 0; color: #666; font-size: 12px;">${project.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="border: 1px solid #ACA899; padding: 12px; background: #F0F0F0; margin-bottom: 16px;">
+                        <div style="margin-bottom: 8px;"><strong>Categoría:</strong> ${project.category}</div>
+                        <div style="margin-bottom: 8px;"><strong>Estado:</strong> ${project.status}</div>
+                        ${project.technologies ? `<div style="margin-bottom: 8px;"><strong>Tecnologías:</strong> ${project.technologies.join(', ')}</div>` : ''}
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <strong>Descripción detallada:</strong><br>
+                        <div style="margin-top: 8px; line-height: 1.4; color: #333;">
+                            ${project.details || project.description}
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        ${project.url && project.url !== '#' ? 
+                            `<button onclick="window.open('${project.url}', '_blank')" style="padding: 6px 16px; font-size: 11px;">Visitar Sitio</button>` : 
+                            ''
+                        }
+                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px; font-size: 11px;">Cerrar</button>
+                    </div>
+                </div>
+            `;
+
+            this.windowManager.createWindow({
+                id: `project-details-${project.id}`,
+                title: `${project.name} - Detalles`,
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Properties.png',
+                content: detailsContent,
+                width: 500,
+                height: 400,
+                resizable: true,
+                maximizable: false
+            });
+        }
+    }
+
+    _showContactConfirmation(contactWindow) {
+        // Crear ventana de confirmación
+        if (this.windowManager) {
+            this.windowManager.createWindow({
+                id: 'contact-confirmation',
+                title: 'Mensaje Enviado',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png',
+                content: `
+                    <div style="padding: 20px; text-align: center;">
+                        <div style="font-size: 48px; color: green; margin-bottom: 10px;">✅</div>
+                        <div style="margin-bottom: 10px;"><strong>¡Mensaje preparado!</strong></div>
+                        <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
+                            Se abrió tu cliente de correo con el mensaje pre-rellenado.<br>
+                            Solo presiona "Enviar" para que me llegue tu mensaje.
+                        </div>
+                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Perfecto</button>
+                    </div>
+                `,
+                width: 350,
+                height: 200,
+                resizable: false,
+                maximizable: false
+            });
+        }
+    }
     
     // --- Métodos auxiliares ---
     
@@ -749,6 +1571,503 @@ export class AppManager {
         }
     }
     
+    async _openMinesweeper() {
+        // Prevenir que se abra más de una ventana de Buscaminas
+        if (this.runningApps.has('minesweeper')) {
+            console.log('Minesweeper is already running');
+            if (this.windowManager && this.windowManager.focusWindow) {
+                this.windowManager.focusWindow('minesweeper');
+            }
+            return;
+        }
+        
+        try {
+            // Verificar que WindowManager esté disponible
+            if (!this.windowManager) {
+                throw new Error('WindowManager no está disponible');
+            }
+            
+            // Cargar el contenido del buscaminas
+            console.log('Loading minesweeper.html...');
+            const response = await fetch('./minesweeper.html');
+            if (!response.ok) {
+                throw new Error(`Error al cargar minesweeper.html: ${response.statusText} (${response.status})`);
+            }
+            const htmlContent = await response.text();
+            
+            // Crear la ventana usando el WindowManager
+            const minesweeperWindow = this.windowManager.createWindow({
+                id: 'minesweeper',
+                title: 'Buscaminas',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Minesweeper.png',
+                content: htmlContent,
+                width: 300,
+                height: 380,
+                resizable: false,
+                maximizable: false
+            });
+            
+            // Cargar dinámicamente el script del buscaminas
+            setTimeout(() => {
+                const windowElement = document.querySelector('[data-window-id="minesweeper"]');
+                if (windowElement) {
+                    // Verificar si ya se ha cargado el script
+                    if (!document.querySelector('script[src="js/minesweeper-simple.js"]')) {
+                        const script = document.createElement('script');
+                        script.src = 'js/minesweeper-simple.js';
+                        script.type = 'text/javascript';
+                        
+                        script.onload = () => {
+                            console.log('Minesweeper script loaded, initializing game...');
+                            if (typeof initMinesweeperGame === 'function') {
+                                try {
+                                    initMinesweeperGame();
+                                    console.log('Minesweeper game initialized successfully');
+                                } catch (error) {
+                                    console.error('Error initializing minesweeper game:', error);
+                                }
+                            }
+                        };
+                        
+                        script.onerror = (error) => {
+                            console.error('Error loading minesweeper script:', error);
+                        };
+                        
+                        document.head.appendChild(script);
+                    } else {
+                        console.log('Minesweeper script already loaded, initializing game...');
+                        if (typeof initMinesweeperGame === 'function') {
+                            try {
+                                initMinesweeperGame();
+                                console.log('Minesweeper game initialized successfully');
+                            } catch (error) {
+                                console.error('Error initializing minesweeper game:', error);
+                            }
+                        }
+                    }
+                } else {
+                    console.log('Minesweeper window element not found');
+                }
+            }, 300);
+            
+            // Hacer la ventana arrastrable
+            makeDraggable(minesweeperWindow);
+            
+            // Configurar observer para detectar cuando se cierra la ventana
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        mutation.removedNodes.forEach((node) => {
+                            if (node.dataset && node.dataset.windowId === 'minesweeper') {
+                                console.log('Minesweeper window closed');
+                                this.closeApp('minesweeper');
+                                observer.disconnect();
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Observar cambios en el contenedor de ventanas
+            if (minesweeperWindow.parentNode) {
+                observer.observe(minesweeperWindow.parentNode, { childList: true });
+            }
+            
+            // Marcar como aplicación en ejecución
+            this.runningApps.set('minesweeper', 'minesweeper');
+            
+            console.log('Minesweeper window created successfully');
+            return minesweeperWindow;
+            
+        } catch (error) {
+            console.error('Error al abrir Buscaminas:', error);
+            this.showError(`Error al abrir Buscaminas: ${error.message}`);
+        }
+    }
+
+    async _openPaint() {
+        // Prevenir que se abra más de una ventana de Paint
+        if (this.runningApps.has('paint')) {
+            console.log('Paint is already running');
+            if (this.windowManager && this.windowManager.focusWindow) {
+                this.windowManager.focusWindow('paint');
+            }
+            return;
+        }
+        
+        try {
+            // Verificar que WindowManager esté disponible
+            if (!this.windowManager) {
+                throw new Error('WindowManager no está disponible');
+            }
+            
+            // Cargar el contenido de Paint
+            console.log('Loading paint.html...');
+            const response = await fetch('./paint.html');
+            if (!response.ok) {
+                throw new Error(`Error al cargar paint.html: ${response.statusText} (${response.status})`);
+            }
+            const htmlContent = await response.text();
+            
+            // Crear la ventana usando el WindowManager
+            const paintWindow = this.windowManager.createWindow({
+                id: 'paint',
+                title: 'Paint',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Paint.png',
+                content: htmlContent,
+                width: 550,
+                height: 450,
+                resizable: true,
+                maximizable: true
+            });
+            
+            // Cargar dinámicamente el script de Paint
+            setTimeout(() => {
+                const windowElement = document.querySelector('[data-window-id="paint"]');
+                if (windowElement) {
+                    // Verificar si ya se ha cargado el script
+                    if (!document.querySelector('script[src="js/paint.js"]')) {
+                        const script = document.createElement('script');
+                        script.src = 'js/paint.js';
+                        script.type = 'text/javascript';
+                        
+                        script.onload = () => {
+                            console.log('Paint script loaded, initializing app...');
+                            if (typeof initPaintApp === 'function') {
+                                try {
+                                    initPaintApp();
+                                    console.log('Paint app initialized successfully');
+                                } catch (error) {
+                                    console.error('Error initializing paint app:', error);
+                                }
+                            }
+                        };
+                        
+                        script.onerror = (error) => {
+                            console.error('Error loading paint script:', error);
+                        };
+                        
+                        document.head.appendChild(script);
+                    } else {
+                        console.log('Paint script already loaded, initializing app...');
+                        if (typeof initPaintApp === 'function') {
+                            try {
+                                initPaintApp();
+                                console.log('Paint app initialized successfully');
+                            } catch (error) {
+                                console.error('Error initializing paint app:', error);
+                            }
+                        }
+                    }
+                } else {
+                    console.log('Paint window element not found');
+                }
+            }, 300);
+            
+            // Hacer la ventana arrastrable
+            makeDraggable(paintWindow);
+            
+            // Configurar observer para detectar cuando se cierra la ventana
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        mutation.removedNodes.forEach((node) => {
+                            if (node.dataset && node.dataset.windowId === 'paint') {
+                                console.log('Paint window closed');
+                                this.closeApp('paint');
+                                observer.disconnect();
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Observar cambios en el contenedor de ventanas
+            if (paintWindow.parentNode) {
+                observer.observe(paintWindow.parentNode, { childList: true });
+            }
+            
+            // Marcar como aplicación en ejecución
+            this.runningApps.set('paint', 'paint');
+            
+            console.log('Paint window created successfully');
+            return paintWindow;
+            
+        } catch (error) {
+            console.error('Error al abrir Paint:', error);
+            this.showError(`Error al abrir Paint: ${error.message}`);
+        }
+    }
+
+    async _openResume() {
+        // Prevenir que se abra más de una ventana de Resume
+        if (this.runningApps.has('resume')) {
+            console.log('Resume is already running');
+            if (this.windowManager && this.windowManager.focusWindow) {
+                this.windowManager.focusWindow('resume');
+            }
+            return;
+        }
+
+        try {
+            // Verificar que WindowManager esté disponible
+            if (!this.windowManager) {
+                throw new Error('WindowManager no está disponible');
+            }
+
+            // Mostrar la imagen del CV directamente
+            const content = `
+                <div id="resume-viewer">
+                    <div class="resume-content">
+                        <img src="./images/MI_CV.jpg" alt="CV Ivan Agustin Zarate" style="width: 100%; height: 100%; object-fit: contain; background: white;">
+                    </div>
+                </div>
+                <style>
+                    #resume-viewer {
+                        display: flex;
+                        flex-direction: column;
+                        height: 100%;
+                        font-family: 'Tahoma', sans-serif;
+                        font-size: 11px;
+                    }
+                    
+                    .resume-content {
+                        flex: 1;
+                        background: #f3f4f6;
+                        padding: 0;
+                        overflow: hidden;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                </style>
+            `;
+
+            // Crear la ventana usando el WindowManager
+            const resumeWindow = this.windowManager.createWindow({
+                id: 'resume',
+                title: 'Mi Curriculum Vitae',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Document Search.png',
+                content: content,
+                width: 700,
+                height: 600,
+                resizable: true,
+                maximizable: true
+            });
+
+            // Marcar como aplicación en ejecución
+            this.runningApps.set('resume', 'resume');
+
+            // Configurar cleanup cuando se cierre la ventana
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.removedNodes.length > 0) {
+                        mutation.removedNodes.forEach((node) => {
+                            if (node === resumeWindow) {
+                                console.log('Resume window removed, cleaning up...');
+                                this.closeApp('resume');
+                                observer.disconnect();
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Observar cambios en el contenedor de ventanas
+            if (resumeWindow.parentNode) {
+                observer.observe(resumeWindow.parentNode, { childList: true });
+            }
+
+            console.log('Resume image viewer window created successfully');
+            return resumeWindow;
+
+        } catch (error) {
+            console.error("No se pudo abrir el CV:", error);
+            
+            // Mostrar una ventana de error al usuario
+            if (this.windowManager) {
+                this.windowManager.createWindow({
+                    id: 'error-resume',
+                    title: 'Error',
+                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png',
+                    content: `
+                        <div style="padding: 20px; text-align: center;">
+                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <div style="margin-bottom: 10px;"><strong>No se pudo cargar el CV</strong></div>
+                            <div style="margin-bottom: 20px; color: #666;">${"$"}{error.message}</div>
+                            <button onclick="this.closest('.window').remove()">Aceptar</button>
+                        </div>
+                    `,
+                    width: 400,
+                    height: 200,
+                    resizable: false
+                });
+            } else {
+                alert(`Error: No se pudo abrir el CV. ${"$"}{error.message}`);
+            }
+        }
+    }
+
+    _setupCVIframe(resumeWindow, bodyContent) {
+        try {
+            const iframe = resumeWindow.querySelector('#cv-iframe');
+            if (!iframe) {
+                console.error('No se encontró el iframe del CV');
+                return;
+            }
+
+            // Crear el documento HTML completo para el iframe
+            const iframeDocument = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>CV de Iván Zarate</title>
+                    <!-- Carga de Tailwind CSS -->
+                    <script src="https://cdn.tailwindcss.com"></script>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            background-color: #f3f4f6;
+                            margin: 0;
+                            padding: 8px;
+                        }
+                        .section-title {
+                            border-bottom: 2px solid #3b82f6;
+                            padding-bottom: 0.5rem;
+                            margin-bottom: 1rem;
+                        }
+                        .max-w-4xl {
+                            max-width: 100% !important;
+                            margin: 0 !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${bodyContent}
+                </body>
+                </html>
+            `;
+
+            // Escribir el contenido al iframe
+            iframe.onload = () => {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    iframeDoc.open();
+                    iframeDoc.write(iframeDocument);
+                    iframeDoc.close();
+                    console.log('CV iframe configurado correctamente');
+                } catch (error) {
+                    console.error('Error configurando iframe:', error);
+                }
+            };
+
+            // Configurar el iframe inmediatamente si ya está cargado
+            if (iframe.contentDocument) {
+                iframe.onload();
+            } else {
+                // Fallback: configurar el src del iframe
+                iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(iframeDocument);
+            }
+
+        } catch (error) {
+            console.error('Error configurando iframe del CV:', error);
+        }
+    }
+
+    _setupResumeButtons(resumeWindow, pdfPath) {
+        try {
+            const openBtn = resumeWindow.querySelector('#open-pdf-btn');
+            const saveBtn = resumeWindow.querySelector('#save-pdf-btn');
+            const printBtn = resumeWindow.querySelector('#print-pdf-btn');
+
+            // Función para descargar el PDF
+            const downloadPDF = () => {
+                const link = document.createElement('a');
+                link.href = pdfPath;
+                link.download = 'Ivan_Zarate_CV.pdf';
+                link.click();
+                
+                // Actualizar status
+                const statusElement = resumeWindow.querySelector('#resume-status');
+                if (statusElement) {
+                    statusElement.textContent = 'Descargando CV...';
+                    setTimeout(() => {
+                        statusElement.textContent = 'Listo';
+                    }, 2000);
+                }
+            };
+
+            // Función para abrir PDF en nueva ventana
+            const openPDFInNewWindow = () => {
+                window.open(pdfPath, '_blank');
+                
+                // Actualizar status
+                const statusElement = resumeWindow.querySelector('#resume-status');
+                if (statusElement) {
+                    statusElement.textContent = 'Abriendo PDF...';
+                    setTimeout(() => {
+                        statusElement.textContent = 'Listo';
+                    }, 2000);
+                }
+            };
+
+            // Configurar eventos de botones
+            if (openBtn) {
+                openBtn.addEventListener('click', openPDFInNewWindow);
+            }
+
+            if (saveBtn) {
+                saveBtn.addEventListener('click', downloadPDF);
+            }
+
+            if (printBtn) {
+                printBtn.addEventListener('click', () => {
+                    // Imprimir la ventana actual (HTML CV)
+                    const printWindow = window.open('', '_blank');
+                    const cvContent = resumeWindow.querySelector('.cv-container').innerHTML;
+                    
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>CV - Ivan Agustin Zarate</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; margin: 20px; }
+                                @media print {
+                                    body { margin: 0; }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${cvContent}
+                        </body>
+                        </html>
+                    `);
+                    
+                    printWindow.document.close();
+                    printWindow.print();
+                    
+                    // Actualizar status
+                    const statusElement = resumeWindow.querySelector('#resume-status');
+                    if (statusElement) {
+                        statusElement.textContent = 'Preparando impresión...';
+                        setTimeout(() => {
+                            statusElement.textContent = 'Listo';
+                        }, 2000);
+                    }
+                });
+            }
+
+            console.log('Resume buttons configured successfully');
+
+        } catch (error) {
+            console.error('Error configurando botones del CV:', error);
+        }
+    }
+
     closeApp(appId) {
         // Cleanup específico para diferentes aplicaciones
         if (appId === 'winamp') {
@@ -777,9 +2096,19 @@ export class AppManager {
             if (taskbarManager) {
                 taskbarManager.removeProgram('winamp');
             }
+        } else if (appId === 'minesweeper') {
+            console.log('Cleaning up Buscaminas application');
+            // Limpiar timer del buscaminas si existe
+            if (window.timerInterval) {
+                clearInterval(window.timerInterval);
+                window.timerInterval = null;
+            }
         } else if (appId === 'my-computer') {
             console.log('Cleaning up Mi PC application');
             // Aquí se puede añadir cleanup específico para Mi PC si es necesario
+        } else if (appId === 'contact') {
+            console.log('Cleaning up Contact application');
+            // Limpiar cualquier event listener específico si es necesario
         }
         
         this.runningApps.delete(appId);

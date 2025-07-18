@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="css/winamp-frameless.css">
     <link rel="stylesheet" href="css/mipc.css">
     <link rel="stylesheet" href="css/about-me.css">
+    <link rel="stylesheet" href="css/contacto.css">
+    <link rel="stylesheet" href="css/proyectos-explorer.css">
     <link rel="stylesheet" href="css/crtEffect.css">
 </head>
 <body>
@@ -103,29 +105,29 @@
     <div class="desktop wallpaper-default" style="display: none;">
         <div class="selection-overlay"></div>
         <div class="desktop-icons" style="--icon-scale: 1;">
+            <div class="desktop-icon" data-program-name="my-computer">
+                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png" alt="Mi PC" loading="eager">
+                <span>Mi PC</span>
+            </div>
             <div class="desktop-icon" data-program-name="about-me">
                 <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/User Accounts.png" alt="Sobre Mí" loading="eager">
                 <span>Sobre Mí</span>
-            </div>
-            <div class="desktop-icon" data-program-name="projects">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Internet Explorer 6.png" alt="Mis Proyectos" loading="eager">
-                <span>Mis Proyectos</span>
-            </div>
-            <div class="desktop-icon" data-program-name="contact">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png" alt="Mi Contacto" loading="eager">
-                <span>Mi Contacto</span>
             </div>
             <div class="desktop-icon" data-program-name="resume">
                 <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Document Search.png" alt="Mi Resumen" loading="eager">
                 <span>Mi Resumen</span>
             </div>
+            <div class="desktop-icon" data-program-name="contact">
+                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png" alt="Mi Contacto" loading="eager">
+                <span>Mi Contacto</span>
+            </div>
             <div id="winamp-desktop-icon" class="desktop-icon" data-program-name="winamp">
                 <img src="./images/winamp.png" alt="Winamp" loading="eager">
                 <span>Winamp</span>
             </div>
-            <div class="desktop-icon" data-program-name="my-computer">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png" alt="Mi PC" loading="eager">
-                <span>Mi PC</span>
+            <div class="desktop-icon" data-program-name="projects">
+                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Internet Explorer 6.png" alt="Mis Proyectos" loading="eager">
+                <span>Mis Proyectos</span>
             </div>
         </div>
     </div>
@@ -153,7 +155,7 @@
 
     <!-- Scripts -->
     <script type="module" src="js/main.js"></script>
-    <script src="js/apps.js"></script>
+    <script type="module" src="js/apps.js"></script>
     <script type="module" src="js/winamp-logic.js"></script>
 
 
@@ -285,10 +287,16 @@
             </div>
             <div class="middle-section middle-right">
                 <ul class="menu-items">
-                    <li class="menu-item disabled" id="menu-instagram">
-                        <img src="./assets/images/user-icon.png" alt="Instagram">
+                    <li class="menu-item" id="menu-minesweeper" data-action="open-program" data-program-name="minesweeper">
+                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Minesweeper.png" alt="Buscaminas">
                         <div class="item-content">
-                            <span class="item-title">Instagram</span>
+                            <span class="item-title">Buscaminas</span>
+                        </div>
+                    </li>
+                    <li class="menu-item" id="menu-paint" data-action="open-program" data-program-name="paint">
+                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Paint.png" alt="Paint">
+                        <div class="item-content">
+                            <span class="item-title">Paint</span>
                         </div>
                     </li>
                     <li class="menu-item" id="menu-github" data-action="open-url" data-url="https://github.com/yourusername">

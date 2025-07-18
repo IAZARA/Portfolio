@@ -5,6 +5,7 @@ export class BootManager {
         this.loginScreen = document.getElementById('login-screen');
         this.desktop = document.querySelector('.desktop');
         this.fadeoutOverlay = document.getElementById('boot-fadeout-overlay');
+        this.loginHandlersSet = false;
     }
     
     async startBoot() {
@@ -43,6 +44,14 @@ export class BootManager {
         
         console.log('Login screen displayed');
         
+        // Only set up event listeners if they haven't been set up already
+        if (!this.loginHandlersSet) {
+            this.setupLoginHandlers();
+            this.loginHandlersSet = true;
+        }
+    }
+    
+    setupLoginHandlers() {
         // Set up login click handler
         const userSection = this.loginScreen.querySelector('.right .back-gradient');
         const welcomeMessage = this.loginScreen.querySelector('.welcome-message');
@@ -78,18 +87,26 @@ export class BootManager {
         
         // Restart button handler
         const restartBtn = this.loginScreen.querySelector('.turn-off');
-        restartBtn.addEventListener('click', () => {
-            this.restart();
-        });
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                this.restart();
+            });
+        }
     }
     
     async showDesktop() {
         this.desktop.style.display = 'block';
         this.desktop.style.opacity = '0';
         this.desktop.style.pointerEvents = 'auto';
+        this.desktop.style.transition = 'opacity 1s ease-in';
         
-        await this.delay(100);
+        await this.delay(200);
         this.desktop.style.opacity = '1';
+        
+        await this.delay(1000);
+        
+        // Reset transition for future operations
+        this.desktop.style.transition = '';
         
         // Desktop is now ready
         this.onDesktopReady();
@@ -101,75 +118,146 @@ export class BootManager {
     }
     
     async restart() {
-        // Show fadeout overlay
+        // Start desktop fade out smoothly
+        this.desktop.style.transition = 'opacity 1.2s ease-out';
+        this.desktop.style.opacity = '0';
+        
+        await this.delay(600);
+        
+        // Show fadeout overlay with smooth transition
         this.fadeoutOverlay.style.display = 'block';
-        await this.delay(100);
+        this.fadeoutOverlay.style.transition = 'opacity 0.8s ease-in-out';
+        this.fadeoutOverlay.style.opacity = '0';
+        await this.delay(50);
         this.fadeoutOverlay.style.opacity = '1';
         
-        // Play shutdown sound if available
-        if (window.zarateXP?.soundManager) {
-            window.zarateXP.soundManager.play('shutdown');
-        }
-        
-        await this.delay(1000);
+        await this.delay(1200);
         
         // Reload the page
         window.location.reload();
     }
     
     async shutdown() {
-        // Show fadeout overlay
+        // Start desktop fade out smoothly
+        this.desktop.style.transition = 'opacity 1.5s ease-out';
+        this.desktop.style.opacity = '0';
+        
+        await this.delay(800);
+        
+        // Show fadeout overlay with smooth transition
         this.fadeoutOverlay.style.display = 'block';
-        await this.delay(100);
+        this.fadeoutOverlay.style.transition = 'opacity 1s ease-in-out';
+        this.fadeoutOverlay.style.opacity = '0';
+        await this.delay(50);
         this.fadeoutOverlay.style.opacity = '1';
         
-        // Play shutdown sound if available
-        if (window.zarateXP?.soundManager) {
-            window.zarateXP.soundManager.play('shutdown');
-        }
+        await this.delay(1500);
         
-        await this.delay(2000);
+        // Create shutdown message with smooth fade in
+        const shutdownDiv = document.createElement('div');
+        shutdownDiv.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-family: 'Tahoma', sans-serif;
+            font-size: 14px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        `;
         
-        // Show shutdown message
-        document.body.innerHTML = `
-            <div style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: #000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #888;
-                font-family: 'Tahoma', sans-serif;
-                font-size: 14px;
-                text-align: center;
-            ">
-                <div>
-                    <p>Es seguro apagar el equipo.</p>
-                    <p style="margin-top: 20px; font-size: 12px;">It is now safe to turn off your computer.</p>
-                </div>
+        shutdownDiv.innerHTML = `
+            <div>
+                <p>Es seguro apagar el equipo.</p>
+                <p style="margin-top: 20px; font-size: 12px;">It is now safe to turn off your computer.</p>
             </div>
         `;
+        
+        document.body.appendChild(shutdownDiv);
+        
+        // Fade in shutdown message
+        await this.delay(100);
+        shutdownDiv.style.opacity = '1';
+    }
+    
+    async logoff() {
+        // Start desktop fade out smoothly
+        this.desktop.style.transition = 'opacity 1.5s ease-out';
+        this.desktop.style.opacity = '0';
+        
+        await this.delay(800);
+        
+        // Show fadeout overlay with smooth transition
+        this.fadeoutOverlay.style.display = 'block';
+        this.fadeoutOverlay.style.transition = 'opacity 0.8s ease-in-out';
+        this.fadeoutOverlay.style.opacity = '0';
+        await this.delay(50);
+        this.fadeoutOverlay.style.opacity = '1';
+        
+        await this.delay(1200);
+        
+        // Hide desktop completely
+        this.desktop.style.display = 'none';
+        this.desktop.style.pointerEvents = 'none';
+        
+        // Smooth fadeout of overlay
+        this.fadeoutOverlay.style.transition = 'opacity 0.6s ease-out';
+        this.fadeoutOverlay.style.opacity = '0';
+        await this.delay(600);
+        this.fadeoutOverlay.style.display = 'none';
+        
+        // Reset welcome message state
+        const welcomeMessage = this.loginScreen.querySelector('.welcome-message');
+        if (welcomeMessage) {
+            welcomeMessage.classList.add('welcome-message-initial-hidden');
+            welcomeMessage.style.opacity = '0';
+        }
+        
+        // Reset login screen content
+        const loginScreenDiv = this.loginScreen.querySelector('.login-screen');
+        if (loginScreenDiv) {
+            loginScreenDiv.style.display = 'block';
+        }
+        
+        // Make sure boot screen stays hidden
+        this.bootScreen.style.display = 'none';
+        this.bootScreen.style.opacity = '0';
+        
+        // Show login screen with smooth fade in
+        this.loginScreen.style.display = 'flex';
+        this.loginScreen.style.opacity = '0';
+        this.loginScreen.style.transition = 'opacity 0.8s ease-in';
+        await this.delay(100);
+        this.loginScreen.style.opacity = '1';
+        
+        // Reset desktop transition for next time
+        await this.delay(800);
+        this.desktop.style.transition = '';
+        this.desktop.style.opacity = '1';
     }
     
     // Utility functions
-    async fadeOut(element) {
-        element.style.transition = 'opacity 0.5s';
+    async fadeOut(element, duration = 800) {
+        element.style.transition = `opacity ${duration / 1000}s ease-out`;
         element.style.opacity = '0';
-        await this.delay(500);
+        await this.delay(duration);
         element.style.display = 'none';
     }
     
-    async fadeIn(element) {
+    async fadeIn(element, duration = 800) {
         element.style.display = 'block';
         element.style.opacity = '0';
         await this.delay(100);
-        element.style.transition = 'opacity 0.5s';
+        element.style.transition = `opacity ${duration / 1000}s ease-in`;
         element.style.opacity = '1';
-        await this.delay(500);
+        await this.delay(duration);
     }
     
     delay(ms) {

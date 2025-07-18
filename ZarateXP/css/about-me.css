@@ -1,5 +1,46 @@
 /* ============== ESTILOS IMPRESIONANTES PARA VENTANA SOBRE MÍ ============== */
 
+/* Contenedor principal con encapsulamiento */
+#about-me-window {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: 'Tahoma', sans-serif;
+}
+
+/* Barra de menú estilo Windows XP */
+#about-me-window .about-me-menu-bar {
+    display: flex;
+    padding: 4px 8px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+#about-me-window .about-me-menu-bar span {
+    margin-right: 15px;
+    padding: 2px 8px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background-color 0.2s;
+}
+
+#about-me-window .about-me-menu-bar span:hover {
+    background: #D4D0C8;
+}
+
+#about-me-window .about-me-menu-bar span u {
+    text-decoration: underline;
+}
+
+/* Ajustar el contenedor principal para que ocupe el resto del espacio */
+#about-me-window .about-me-container {
+    flex: 1;
+    overflow-y: auto;
+}
+
 .about-me-container {
     padding: 0;
     font-family: 'Segoe UI', 'Tahoma', sans-serif;

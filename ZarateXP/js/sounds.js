@@ -10,6 +10,7 @@ export class SoundManager {
         this.systemSounds = {
             startup: 'windows-xp-startup.mp3',
             shutdown: 'shutdown.wav',
+            'shutdown-custom': 'shutdown-custom.mp3',
             logon: 'logon.wav',
             logoff: 'logoff.wav',
             error: 'error.wav',

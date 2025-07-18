@@ -20,7 +20,9 @@
       "Bash(find:*)",
       "mcp__playwright__playwright_get_visible_text",
       "Bash(git clone:*)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

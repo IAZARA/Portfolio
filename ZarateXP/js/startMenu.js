@@ -235,26 +235,33 @@ export class StartMenuManager {
             restartBtn.style.display = 'flex';
             shutdownBtn.style.display = 'flex';
             
-            // Update first button for logout scenario
+            // Update first button for restart
             const firstBtnImg = restartBtn.querySelector('img');
             const firstBtnText = restartBtn.querySelector('span');
             firstBtnImg.src = 'assets/images/restart.png';
             firstBtnImg.alt = 'Restart Icon';
-            firstBtnText.textContent = 'Restart';
+            firstBtnText.textContent = 'Reiniciar';
+            
+            // Update second button for shutdown
+            const secondBtnImg = shutdownBtn.querySelector('img');
+            const secondBtnText = shutdownBtn.querySelector('span');
+            secondBtnImg.src = 'assets/images/shutdown.png';
+            secondBtnImg.alt = 'Shutdown Icon';
+            secondBtnText.textContent = 'Apagar';
         } else {
             headerText.textContent = 'Cerrar Sesión IaZarateXP';
             // Show restart and logout buttons
             restartBtn.style.display = 'flex';
             shutdownBtn.style.display = 'flex';
             
-            // Update first button for logout scenario
+            // Update first button for restart
             const firstBtnImg = restartBtn.querySelector('img');
             const firstBtnText = restartBtn.querySelector('span');
             firstBtnImg.src = 'assets/images/restart.png';
             firstBtnImg.alt = 'Restart Icon';
-            firstBtnText.textContent = 'Restart';
+            firstBtnText.textContent = 'Reiniciar';
             
-            // Update second button for logout scenario
+            // Update second button for logout
             const secondBtnImg = shutdownBtn.querySelector('img');
             const secondBtnText = shutdownBtn.querySelector('span');
             secondBtnImg.src = 'images/icons/logout.png';
@@ -276,42 +283,93 @@ export class StartMenuManager {
         restartBtn.onclick = () => {
             dialog.classList.add('logoff-dialog-hidden');
             dialog.style.display = 'none';
-            this.showShutdownWindow();
+            this.performRestart();
         };
         
         shutdownBtn.onclick = () => {
             dialog.classList.add('logoff-dialog-hidden');
             dialog.style.display = 'none';
             if (isShutdown) {
-                this.showShutdownWindow();
+                this.performShutdown();
             } else {
-                this.showLogoffWindow();
+                this.performLogoff();
             }
         };
     }
     
-    showShutdownWindow() {
-        const shutdownWindow = document.getElementById('shutdown-window-container');
-        shutdownWindow.classList.remove('shutdown-window-hidden');
-        shutdownWindow.style.display = 'flex';
+    async performShutdown() {
+        // Start the shutdown process without sound first
+        const shutdownPromise = window.zarateXP?.bootManager ? 
+            window.zarateXP.bootManager.shutdown() : Promise.resolve();
         
-        // Auto-close after 3 seconds (optional)
-        setTimeout(() => {
-            shutdownWindow.classList.add('shutdown-window-hidden');
-            shutdownWindow.style.display = 'none';
-        }, 3000);
+        // Wait 3 seconds before playing shutdown sound
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Play shutdown sound
+        if (window.zarateXP?.soundManager) {
+            const shutdownSound = window.zarateXP.soundManager.play('shutdown-custom');
+            if (shutdownSound) {
+                await new Promise(resolve => {
+                    shutdownSound.addEventListener('ended', resolve);
+                    shutdownSound.addEventListener('error', resolve);
+                    // Timeout después de 5 segundos si el sonido no termina
+                    setTimeout(resolve, 5000);
+                });
+            }
+        }
+        
+        // Wait for shutdown process to complete
+        await shutdownPromise;
     }
     
-    showLogoffWindow() {
-        const logoffWindow = document.getElementById('logoff-window-container');
-        logoffWindow.classList.remove('logoff-window-hidden');
-        logoffWindow.style.display = 'flex';
+    async performRestart() {
+        // Start the restart process without sound first
+        const restartPromise = window.zarateXP?.bootManager ? 
+            window.zarateXP.bootManager.restart() : Promise.resolve();
         
-        // Auto-close after 3 seconds (optional)
-        setTimeout(() => {
-            logoffWindow.classList.add('logoff-window-hidden');
-            logoffWindow.style.display = 'none';
-        }, 3000);
+        // Wait 3 seconds before playing shutdown sound
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Play shutdown sound
+        if (window.zarateXP?.soundManager) {
+            const shutdownSound = window.zarateXP.soundManager.play('shutdown-custom');
+            if (shutdownSound) {
+                await new Promise(resolve => {
+                    shutdownSound.addEventListener('ended', resolve);
+                    shutdownSound.addEventListener('error', resolve);
+                    // Timeout después de 5 segundos si el sonido no termina
+                    setTimeout(resolve, 5000);
+                });
+            }
+        }
+        
+        // Wait for restart process to complete
+        await restartPromise;
+    }
+    
+    async performLogoff() {
+        // Start the logoff process without sound first
+        const logoffPromise = window.zarateXP?.bootManager ? 
+            window.zarateXP.bootManager.logoff() : Promise.resolve();
+        
+        // Wait 3 seconds before playing logoff sound
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Play logoff sound
+        if (window.zarateXP?.soundManager) {
+            const logoffSound = window.zarateXP.soundManager.play('shutdown-custom');
+            if (logoffSound) {
+                await new Promise(resolve => {
+                    logoffSound.addEventListener('ended', resolve);
+                    logoffSound.addEventListener('error', resolve);
+                    // Timeout después de 5 segundos si el sonido no termina
+                    setTimeout(resolve, 5000);
+                });
+            }
+        }
+        
+        // Wait for logoff process to complete
+        await logoffPromise;
     }
     
     animateMenuItems() {

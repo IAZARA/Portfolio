@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV de Iván Zarate</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Fondo gris claro */
+        }
+        .section-title {
+            border-bottom: 2px solid #3b82f6; /* Borde azul para títulos de sección */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8 lg:p-12">
+    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden md:flex">
+        <!-- Columna Izquierda: Información de Contacto y Perfil -->
+        <div class="bg-gray-800 text-white p-6 md:w-1/3 flex flex-col items-center md:items-start rounded-t-lg md:rounded-l-lg md:rounded-tr-none">
+            <!-- Sección de Contacto -->
+            <div class="mb-6 text-center md:text-left w-full">
+                <!-- Imagen de perfil (placeholder) -->
+                <img src="https://placehold.co/150x150/000000/FFFFFF?text=Iván" alt="Imagen de perfil de Iván Zarate" class="rounded-full mx-auto mb-4 border-4 border-blue-500">
+                <h1 class="text-3xl font-bold mb-1">Iván Zarate</h1>
+                <h2 class="text-xl text-blue-300 mb-4">SYSTEMS ANALYST</h2>
+                <h3 class="text-lg font-semibold mb-2">CONTACTO</h3>
+                <p class="text-sm">📞 11-40973159</p>
+                <p class="text-sm">📧 ivan.zarate.95@gmail.com</p>
+                <p class="text-sm">🏠 Peru 635 CABA, C.P 1068</p>
+            </div>
+
+            <!-- Sección de Información Adicional -->
+            <div class="mb-6 text-center md:text-left w-full">
+                <h3 class="text-lg font-semibold mb-2">INFORMACIÓN</h3>
+                <ul class="list-disc list-inside text-sm">
+                    <li>Carnet de conducir</li>
+                    <li>Coche propio</li>
+                </ul>
+            </div>
+
+            <!-- Sección Mi Perfil -->
+            <div class="text-center md:text-left w-full">
+                <h3 class="text-lg font-semibold mb-2">MI PERFIL</h3>
+                <p class="text-sm leading-relaxed">
+                    Soy proactivo, abierto a nuevos desafíos y siempre dispuesto a encontrar la solución más efectiva, rápida y barata sea cual sea el problema que hay que afrontar. Me gusta trabajar en grupo y con metodologías ágiles.
+                </p>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Experiencia, Formación y Herramientas -->
+        <div class="p-6 md:w-2/3">
+            <!-- Sección de Experiencia -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 section-title mb-4">EXPERIENCIA</h3>
+                <div class="mb-4">
+                    <h4 class="text-lg font-semibold text-gray-700">OFICINA ADMINISTRACIÓN</h4>
+                    <p class="text-sm text-gray-600">COTO | 2013-2015</p>
+                    <p class="text-sm mt-1">Oficina de recursos humanos, auxiliar contable, administración de legajos personales.</p>
+                </div>
+                <div class="mb-4">
+                    <h4 class="text-lg font-semibold text-gray-700">OFICIAL DE POLICÍA FEDERAL</h4>
+                    <p class="text-sm text-gray-600">PFA | 2016 - actualidad</p>
+                    <p class="text-sm mt-1">Estudios cursados para oficial de policía durante 3 años, profesión que me acompaña a la actualidad.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-700">DATA Y SISTEM ANALYST</h4>
+                    <p class="text-sm text-gray-600">MINISTERIO DE SEGURIDAD NACIONAL | Actualmente</p>
+                    <p class="text-sm mt-1">Actualmente, en mi carrera policial, me desempeño como analista en sistemas, desarrollador y analista de datos en la Dirección Nacional Gestión de Bases de Datos de Seguridad, siendo coordinador del área técnica.</p>
+                </div>
+            </div>
+
+            <!-- Sección de Formación -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 section-title mb-4">FORMACIÓN</h3>
+                <div class="mb-4">
+                    <h4 class="text-lg font-semibold text-gray-700">INSTITUTO UNIVERSITARIO PFA</h4>
+                    <p class="text-sm text-gray-600">LIC. EN INVESTIGACIÓN CRIMINAL</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-700">INSTITUTO SUPERIOR ORT</h4>
+                    <p class="text-sm text-gray-600">ANALISTA EN SISTEMAS</p>
+                </div>
+            </div>
+
+            <!-- Sección de Herramientas -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 section-title mb-4">HERRAMIENTAS</h3>
+                <ul class="list-disc list-inside text-sm text-gray-700">
+                    <li>DESARROLLO WEB</li>
+                    <li>INTEGRACIÓN DE API'S Y HERRAMIENTAS CON I.A</li>
+                    <li>GESTIÓN DE EQUIPOS</li>
+                </ul>
+            </div>
+
+            <!-- Sección de Idiomas -->
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 section-title mb-4">IDIOMAS</h3>
+                <ul class="list-disc list-inside text-sm text-gray-700">
+                    <li>ESPAÑOL: Nativo</li>
+                    <li>INGLÉS: Nivel Medio</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
