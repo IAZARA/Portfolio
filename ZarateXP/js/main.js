@@ -6,6 +6,7 @@ import { TaskbarManager } from './taskbar.js';
 import { StartMenuManager } from './startMenu.js';
 import { SoundManager } from './sounds.js';
 import { AppManager } from './apps.js';
+import { ClippyManager } from './clippy/ClippyManager.js';
 
 class ZarateXP {
     constructor() {
@@ -19,6 +20,7 @@ class ZarateXP {
         this.startMenuManager = new StartMenuManager();
         this.soundManager = new SoundManager();
         this.appManager = new AppManager();
+        this.clippyManager = new ClippyManager();
         
         this.init();
     }
@@ -63,6 +65,7 @@ class ZarateXP {
         this.taskbarManager.init();
         this.startMenuManager.init();
         this.appManager.init(this.windowManager);
+        this.clippyManager.init();
         
         // Establecer referencias cruzadas entre managers
         this.windowManager.taskbarManager = this.taskbarManager;
@@ -77,6 +80,11 @@ class ZarateXP {
         
         // Initialize tooltips
         this.initTooltips();
+        
+        // Show Clippy welcome after desktop is ready (10 seconds delay)
+        setTimeout(() => {
+            this.clippyManager.showWelcome();
+        }, 10000);
     }
     
     setupGlobalListeners() {
