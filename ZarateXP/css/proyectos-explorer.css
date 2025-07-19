@@ -190,12 +190,7 @@
 
 /* ============== PANEL IZQUIERDO (ÁRBOL DE CARPETAS) ============== */
 .explorer-left-panel {
-    width: 200px;
-    min-width: 150px;
-    background: #EBF3FD;
-    border-right: 1px solid #ACA899;
-    display: flex;
-    flex-direction: column;
+    display: none;
 }
 
 .panel-header {
@@ -269,11 +264,7 @@
 
 /* ============== SEPARADOR ============== */
 .explorer-splitter {
-    width: 4px;
-    background: #ECE9D8;
-    cursor: col-resize;
-    border-left: 1px solid #ACA899;
-    border-right: 1px solid #ACA899;
+    display: none;
 }
 
 .explorer-splitter:hover {
@@ -283,6 +274,7 @@
 /* ============== PANEL DERECHO (CONTENIDO) ============== */
 .explorer-right-panel {
     flex: 1;
+    width: 100%;
     background: #FFFFFF;
     display: flex;
     flex-direction: column;
@@ -362,19 +354,25 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+    width: 90px;
     padding: 8px;
     cursor: pointer;
-    border-radius: 2px;
+    border: 1px solid transparent;
+    border-radius: 3px;
     user-select: none;
-    max-width: 100px;
 }
 
 .project-item:hover {
-    background: #E5F3FF;
+    background: #E8F0FF;
+    border: 1px solid #316AC5;
 }
 
 .project-item.selected {
     background: #316AC5;
+    border: 1px solid #316AC5;
+}
+
+.project-item.selected .project-name {
     color: #FFFFFF;
 }
 
@@ -385,16 +383,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    background: #FFFFFF;
-    border: 1px solid #ACA899;
-    border-radius: 2px;
 }
 
-.project-item.selected .project-icon {
-    background: #FFFFFF;
-    color: #000;
+.project-icon img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
 }
+
 
 .project-name {
     font-size: 11px;
@@ -536,6 +532,14 @@
 .folder-tree::-webkit-scrollbar-button:hover,
 .content-area::-webkit-scrollbar-button:hover {
     background: linear-gradient(to bottom, #D6D3CE, #B6B3AA);
+}
+
+/* ============== VISTA DE ICONOS ============== */
+.icons-view {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 8px;
 }
 
 /* ============== RESPONSIVE ============== */
