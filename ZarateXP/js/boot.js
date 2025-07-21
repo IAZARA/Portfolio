@@ -13,6 +13,19 @@ export class BootManager {
         console.log('Boot screen element:', this.bootScreen);
         console.log('Login screen element:', this.loginScreen);
         
+        // Verificar si ya hay una sesión activa
+        const hasActiveSession = localStorage.getItem('zarateXP_session') === 'active';
+        
+        if (hasActiveSession) {
+            console.log('Sesión activa detectada, saltando directamente al escritorio...');
+            // Ocultar pantallas de boot y login
+            this.bootScreen.style.display = 'none';
+            this.loginScreen.style.display = 'none';
+            // Mostrar escritorio directamente
+            await this.showDesktop();
+            return;
+        }
+        
         // Show boot screen
         this.bootScreen.style.display = 'flex';
         this.bootScreen.style.opacity = '1';
@@ -80,6 +93,9 @@ export class BootManager {
                 // Fade out login screen
                 await this.fadeOut(this.loginScreen);
                 
+                // Guardar sesión activa en localStorage
+                localStorage.setItem('zarateXP_session', 'active');
+                
                 // Show desktop
                 await this.showDesktop();
             });
@@ -118,6 +134,9 @@ export class BootManager {
     }
     
     async restart() {
+        // Limpiar sesión del localStorage
+        localStorage.removeItem('zarateXP_session');
+        
         // Start desktop fade out smoothly
         this.desktop.style.transition = 'opacity 1.2s ease-out';
         this.desktop.style.opacity = '0';
@@ -138,6 +157,9 @@ export class BootManager {
     }
     
     async shutdown() {
+        // Limpiar sesión del localStorage
+        localStorage.removeItem('zarateXP_session');
+        
         // Start desktop fade out smoothly
         this.desktop.style.transition = 'opacity 1.5s ease-out';
         this.desktop.style.opacity = '0';
@@ -188,6 +210,9 @@ export class BootManager {
     }
     
     async logoff() {
+        // Limpiar sesión del localStorage
+        localStorage.removeItem('zarateXP_session');
+        
         // Start desktop fade out smoothly
         this.desktop.style.transition = 'opacity 1.5s ease-out';
         this.desktop.style.opacity = '0';

@@ -45,6 +45,9 @@
     border-radius: 3px;
     position: relative;
     transition: all 0.1s ease;
+    -webkit-tap-highlight-color: transparent; /* Eliminar resaltado en Safari */
+    -webkit-touch-callout: none; /* Desactivar menú contextual en iOS */
+    user-select: none; /* Prevenir selección de texto */
 }
 
 .desktop-icon:hover {

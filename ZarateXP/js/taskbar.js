@@ -15,7 +15,16 @@ export class TaskbarManager {
     }
     
     setupStartButton() {
-        this.startButton.addEventListener('click', (e) => {
+        // Helper para agregar eventos click y touch
+        const addClickAndTouch = (element, handler) => {
+            element.addEventListener('click', handler);
+            element.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                handler(e);
+            });
+        };
+        
+        addClickAndTouch(this.startButton, (e) => {
             e.stopPropagation();
             
             if (window.zarateXP?.startMenuManager) {

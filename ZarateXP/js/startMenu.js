@@ -14,6 +14,18 @@ export class StartMenuManager {
         this.setupFooterButtons();
     }
     
+    // Helper para agregar eventos de click y touch
+    addClickAndTouchEvent(element, handler) {
+        // Click para desktop
+        element.addEventListener('click', handler);
+        
+        // Touch para móvil
+        element.addEventListener('touchend', (e) => {
+            e.preventDefault(); // Prevenir el click fantasma
+            handler(e);
+        });
+    }
+    
     setupMenuItems() {
         // Handle all menu items
         const menuItems = this.startMenu.querySelectorAll('.menu-item');
@@ -21,7 +33,7 @@ export class StartMenuManager {
         menuItems.forEach(item => {
             if (item.classList.contains('disabled')) return;
             
-            item.addEventListener('click', (e) => {
+            this.addClickAndTouchEvent(item, (e) => {
                 e.stopPropagation();
                 
                 const action = item.getAttribute('data-action');
@@ -50,7 +62,7 @@ export class StartMenuManager {
         // All programs button
         const allProgramsBtn = document.getElementById('menu-all-programs');
         if (allProgramsBtn) {
-            allProgramsBtn.addEventListener('click', (e) => {
+            this.addClickAndTouchEvent(allProgramsBtn, (e) => {
                 e.stopPropagation();
                 this.toggleAllPrograms();
             });
@@ -63,7 +75,7 @@ export class StartMenuManager {
         allProgramsItems.forEach(item => {
             if (item.classList.contains('disabled')) return;
             
-            item.addEventListener('click', (e) => {
+            this.addClickAndTouchEvent(item, (e) => {
                 e.stopPropagation();
                 
                 const action = item.getAttribute('data-action');

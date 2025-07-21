@@ -2042,9 +2042,20 @@ export class AppManager {
                 throw new Error('WindowManager no está disponible');
             }
 
-            // Mostrar la imagen del CV directamente
+            // Mostrar la imagen del CV directamente con barra de herramientas XP
             const content = `
                 <div id="resume-viewer">
+                    <div class="resume-toolbar">
+                        <button class="toolbar-button" id="save-cv-btn">
+                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Save.png" alt="Guardar">
+                            <span>Guardar</span>
+                        </button>
+                        <div class="toolbar-separator"></div>
+                        <button class="toolbar-button" id="print-cv-btn">
+                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Print to file.png" alt="Imprimir">
+                            <span>Imprimir</span>
+                        </button>
+                    </div>
                     <div class="resume-content">
                         <img src="./images/MI_CV.jpg" alt="CV Ivan Agustin Zarate" style="width: 100%; height: 100%; object-fit: contain; background: white;">
                     </div>
@@ -2056,6 +2067,53 @@ export class AppManager {
                         height: 100%;
                         font-family: 'Tahoma', sans-serif;
                         font-size: 11px;
+                    }
+                    
+                    .resume-toolbar {
+                        background: linear-gradient(to bottom, #fefefe 0%, #e3e3e3 100%);
+                        border-bottom: 1px solid #8e8f8f;
+                        padding: 3px;
+                        display: flex;
+                        align-items: center;
+                        min-height: 26px;
+                    }
+                    
+                    .toolbar-button {
+                        background: transparent;
+                        border: 1px solid transparent;
+                        padding: 2px 4px;
+                        margin: 0 1px;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        cursor: default;
+                        font-family: 'Tahoma', sans-serif;
+                        font-size: 11px;
+                        color: #000;
+                        border-radius: 3px;
+                        transition: none;
+                    }
+                    
+                    .toolbar-button:hover {
+                        border: 1px solid #0078d7;
+                        background: linear-gradient(to bottom, #e5f1fb 0%, #cfe8fc 100%);
+                    }
+                    
+                    .toolbar-button:active {
+                        background: linear-gradient(to bottom, #cfe8fc 0%, #b5d3f0 100%);
+                        border: 1px solid #0078d7;
+                    }
+                    
+                    .toolbar-button img {
+                        width: 16px;
+                        height: 16px;
+                    }
+                    
+                    .toolbar-separator {
+                        width: 1px;
+                        height: 20px;
+                        background: #8e8f8f;
+                        margin: 0 4px;
                     }
                     
                     .resume-content {
@@ -2084,6 +2142,44 @@ export class AppManager {
 
             // Marcar como aplicación en ejecución
             this.runningApps.set('resume', 'resume');
+            
+            // Configurar eventos de los botones
+            setTimeout(() => {
+                const saveBtn = resumeWindow.querySelector('#save-cv-btn');
+                const printBtn = resumeWindow.querySelector('#print-cv-btn');
+                
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', () => {
+                        // Crear un enlace temporal para descargar el PDF
+                        const link = document.createElement('a');
+                        // Usar ruta relativa al archivo PDF en la carpeta del proyecto
+                        link.href = './Ivan_Zarate_CV.pdf';
+                        link.download = 'Ivan_Zarate_CV.pdf';
+                        
+                        // Simular clic para descargar
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        // Reproducir sonido de clic si está disponible
+                        if (this.soundManager) {
+                            this.soundManager.play('click');
+                        }
+                    });
+                }
+                
+                if (printBtn) {
+                    printBtn.addEventListener('click', () => {
+                        // Abrir diálogo de impresión
+                        window.print();
+                        
+                        // Reproducir sonido de clic si está disponible
+                        if (this.soundManager) {
+                            this.soundManager.play('click');
+                        }
+                    });
+                }
+            }, 100);
 
             // Configurar cleanup cuando se cierre la ventana
             const observer = new MutationObserver((mutations) => {

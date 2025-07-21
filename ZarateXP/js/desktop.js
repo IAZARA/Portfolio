@@ -45,6 +45,43 @@ export class DesktopManager {
                 }
             });
             
+            // Touch support for mobile devices
+            let touchStartTime = 0;
+            let touchTimeout;
+            
+            icon.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevenir comportamiento por defecto del navegador
+                const now = Date.now();
+                const timeSinceLastTouch = now - touchStartTime;
+                
+                // Si han pasado menos de 300ms desde el último toque, es un doble tap
+                if (timeSinceLastTouch < 300 && timeSinceLastTouch > 0) {
+                    // Doble tap - abrir programa
+                    clearTimeout(touchTimeout);
+                    const programName = icon.getAttribute('data-program-name');
+                    
+                    if (programName && window.zarateXP?.appManager) {
+                        window.zarateXP.appManager.openApp(programName);
+                    }
+                    touchStartTime = 0;
+                } else {
+                    // Single tap - seleccionar icono
+                    touchStartTime = now;
+                    
+                    // Limpiar selección anterior si no es multiselección
+                    if (!e.ctrlKey && !e.metaKey) {
+                        this.clearSelection();
+                    }
+                    
+                    this.selectIcon(icon);
+                    
+                    // Configurar timeout para resetear el contador de toques
+                    touchTimeout = setTimeout(() => {
+                        touchStartTime = 0;
+                    }, 300);
+                }
+            });
+            
             // Drag handlers - DISABLED for fixed icons
             // this.setupIconDrag(icon);
         });
