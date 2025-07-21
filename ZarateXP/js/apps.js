@@ -772,8 +772,15 @@ export class AppManager {
 
             // Configurar la funcionalidad del formulario
             setTimeout(() => {
-                this._setupContactForm(contactWindow);
-            }, 100);
+                console.log('Esperando para configurar formulario de contacto...');
+                // La ventana de contacto es la que acabamos de crear
+                if (contactWindow) {
+                    console.log('Ventana de contacto encontrada, configurando formulario...');
+                    this._setupContactForm(contactWindow);
+                } else {
+                    console.error('No se encontró la ventana de contacto después del timeout');
+                }
+            }, 300);
 
             // Configurar cleanup cuando se cierre la ventana
             const observer = new MutationObserver((mutations) => {
@@ -827,10 +834,14 @@ export class AppManager {
     }
 
     _setupContactForm(contactWindow) {
+        console.log('Configurando formulario de contacto...');
         try {
             const form = contactWindow.querySelector('#contact-form');
             const sendBtn = contactWindow.querySelector('.toolbar-btn[title*="Send"]') || 
                            contactWindow.querySelector('.toolbar-btn img[src*="Email"]')?.parentElement;
+
+            console.log('Form encontrado:', !!form);
+            console.log('SendBtn encontrado:', !!sendBtn);
 
             if (!form) {
                 console.error('No se encontró el formulario de contacto');
@@ -838,38 +849,78 @@ export class AppManager {
             }
 
             // Configurar envío del formulario
-            const handleSubmit = (e) => {
+            const handleSubmit = async (e) => {
+                console.log('handleSubmit llamado!');
                 e.preventDefault();
                 
                 const name = form.querySelector('#contact-name').value || "Visitor from ZarateXP";
                 const email = form.querySelector('#contact-email').value;
                 const subject = form.querySelector('#contact-subject').value;
                 const body = form.querySelector('#contact-body').value;
+                
+                console.log('Datos del formulario:', { name, email, subject, body });
 
                 if (!email || !subject || !body) {
                     this._showValidationError('Por favor completa todos los campos requeridos: Email, Asunto y Mensaje');
                     return;
                 }
 
-                // Construir el mensaje completo
-                const fullMessage = `Hola Ivan,
+                // Mostrar estado de envío
+                this._showSendingStatus(contactWindow);
 
-De: ${email}
-Nombre: ${name}
+                try {
+                    // Inicializar EmailJS si no está inicializado
+                    if (!window.emailjs) {
+                        throw new Error('EmailJS no está cargado');
+                    }
 
-${body}
+                    // Configuración de EmailJS
+                    const SERVICE_ID = 'service_8';
+                    const TEMPLATE_ID = 'template_9q3ojjb';
+                    const PUBLIC_KEY = 'OFfF3bg1HcEMdZIeF';
 
----
-Enviado desde ZarateXP Portfolio`;
+                    // Inicializar EmailJS con tu public key
+                    emailjs.init(PUBLIC_KEY);
 
-                // Crear enlace mailto
-                const mailtoLink = `mailto:ivan.agustin.95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
-                
-                // Abrir cliente de correo
-                window.open(mailtoLink, '_blank');
-                
-                // Mostrar confirmación
-                this._showContactConfirmation(contactWindow);
+                    // Parámetros para el template (coincidiendo con tu configuración)
+                    const templateParams = {
+                        name: `${name} (${email})`,  // Combinamos nombre y email
+                        message: `Asunto: ${subject}\n\n${body}`,  // Incluimos el asunto en el mensaje
+                        email: email,  // Por si lo necesitas en el futuro
+                        subject: subject  // Por si lo necesitas en el futuro
+                    };
+
+                    // Enviar email
+                    const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
+                    
+                    console.log('Email enviado exitosamente:', response);
+                    
+                    // Cerrar ventana de estado de envío
+                    const sendingWindow = document.querySelector('[data-window-id="sending-status"]');
+                    if (sendingWindow) {
+                        sendingWindow.remove();
+                    }
+                    
+                    // Mostrar confirmación de éxito
+                    this._showContactConfirmation(contactWindow);
+                    
+                    // Limpiar formulario
+                    form.reset();
+                    
+                } catch (error) {
+                    console.error('Error al enviar email:', error);
+                    
+                    // Si EmailJS no está configurado, usar método alternativo
+                    if (error.message.includes('Service ID') || error.message.includes('Template ID') || error.message.includes('Public Key')) {
+                        // Fallback a mailto
+                        const fullMessage = `Hola Ivan,\n\nDe: ${email}\nNombre: ${name}\n\n${body}\n\n---\nEnviado desde ZarateXP Portfolio`;
+                        const mailtoLink = `mailto:ivan.agustin.95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
+                        window.open(mailtoLink, '_blank');
+                        this._showMailtoFallback(contactWindow);
+                    } else {
+                        this._showEmailError(contactWindow, error.message);
+                    }
+                }
             };
 
             // Configurar eventos de envío
@@ -1597,16 +1648,102 @@ Enviado desde ZarateXP Portfolio`;
                 content: `
                     <div style="padding: 20px; text-align: center;">
                         <div style="font-size: 48px; color: green; margin-bottom: 10px;">✅</div>
-                        <div style="margin-bottom: 10px;"><strong>¡Mensaje preparado!</strong></div>
+                        <div style="margin-bottom: 10px;"><strong>¡Mensaje enviado exitosamente!</strong></div>
                         <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
-                            Se abrió tu cliente de correo con el mensaje pre-rellenado.<br>
-                            Solo presiona "Enviar" para que me llegue tu mensaje.
+                            Tu mensaje ha sido enviado a Ivan.<br>
+                            Te responderá lo antes posible.
                         </div>
-                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Perfecto</button>
+                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Aceptar</button>
                     </div>
                 `,
                 width: 350,
                 height: 200,
+                resizable: false,
+                maximizable: false
+            });
+        }
+    }
+
+    _showSendingStatus(contactWindow) {
+        if (this.windowManager) {
+            this.windowManager.createWindow({
+                id: 'sending-status',
+                title: 'Enviando Mensaje',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Email.png',
+                content: `
+                    <div style="padding: 20px; text-align: center;">
+                        <div style="margin-bottom: 20px;">
+                            <div class="loading-animation" style="display: inline-block; width: 32px; height: 32px; border: 3px solid #f3f3f3; border-top: 3px solid #0078d4; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        </div>
+                        <div style="color: #666;">Enviando mensaje...</div>
+                    </div>
+                    <style>
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    </style>
+                `,
+                width: 250,
+                height: 150,
+                resizable: false,
+                maximizable: false,
+                closable: false
+            });
+        }
+    }
+
+    _showEmailError(contactWindow, errorMessage) {
+        // Cerrar ventana de estado si existe
+        const statusWindow = document.querySelector('[data-window-id="sending-status"]');
+        if (statusWindow) statusWindow.remove();
+
+        if (this.windowManager) {
+            this.windowManager.createWindow({
+                id: 'email-error',
+                title: 'Error al Enviar',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Error.png',
+                content: `
+                    <div style="padding: 20px; text-align: center;">
+                        <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                        <div style="margin-bottom: 10px;"><strong>Error al enviar el mensaje</strong></div>
+                        <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
+                            ${errorMessage || 'Ocurrió un error al enviar el mensaje. Por favor intenta nuevamente.'}
+                        </div>
+                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Aceptar</button>
+                    </div>
+                `,
+                width: 350,
+                height: 200,
+                resizable: false,
+                maximizable: false
+            });
+        }
+    }
+
+    _showMailtoFallback(contactWindow) {
+        // Cerrar ventana de estado si existe
+        const statusWindow = document.querySelector('[data-window-id="sending-status"]');
+        if (statusWindow) statusWindow.remove();
+
+        if (this.windowManager) {
+            this.windowManager.createWindow({
+                id: 'mailto-fallback',
+                title: 'Configuración Requerida',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png',
+                content: `
+                    <div style="padding: 20px; text-align: center;">
+                        <div style="font-size: 48px; color: #0078d4; margin-bottom: 10px;">ℹ️</div>
+                        <div style="margin-bottom: 10px;"><strong>EmailJS no configurado</strong></div>
+                        <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
+                            Se abrió tu cliente de correo con el mensaje.<br>
+                            Para envío automático, configura EmailJS en el código.
+                        </div>
+                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Entendido</button>
+                    </div>
+                `,
+                width: 400,
+                height: 220,
                 resizable: false,
                 maximizable: false
             });

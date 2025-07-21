@@ -1,7 +1,7 @@
 /* Clippy Component Styles */
 clippy-character {
   position: fixed;
-  bottom: 32px; /* Justo sobre la barra de tareas (la taskbar tiene 30px) */
+  bottom: -100px; /* Superpuesto con la barra de tareas */
   right: 5px; /* Más pegado a la esquina derecha */
   z-index: 9999;
   pointer-events: none;
@@ -44,7 +44,7 @@ clippy-character.entering {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   clippy-character {
-    bottom: 32px;
+    bottom: -100px;
     right: 5px;
     transform: translateY(50px) scale(0.5);
   }
@@ -75,7 +75,7 @@ clippy-character.entering {
 
 @media (max-width: 480px) {
   clippy-character {
-    bottom: 32px;
+    bottom: -100px;
     right: 3px;
     transform: translateY(50px) scale(0.4);
   }
