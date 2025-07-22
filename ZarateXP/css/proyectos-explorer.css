@@ -15,7 +15,7 @@
 .explorer-menu-bar {
     background: #ECE9D8;
     border-bottom: 1px solid #ACA899;
-    padding: 2px 4px;
+    padding: 4px 8px;
     display: flex;
     gap: 0px;
     font-size: 11px;
@@ -23,20 +23,30 @@
     align-items: center;
 }
 
-.menu-item {
+.explorer-menu-bar .menu-item {
     cursor: pointer;
-    padding: 4px 8px;
+    padding: 2px 8px;
     color: #000;
     white-space: nowrap;
+    margin-right: 15px;
+    border-radius: 2px;
+    transition: background-color 0.2s;
+    word-spacing: normal;
+    letter-spacing: normal;
+    display: inline-block;
 }
 
-.menu-item:hover {
-    background: #316AC5;
-    color: #FFFFFF;
+.explorer-menu-bar .menu-item:hover {
+    background: #D4D0C8;
 }
 
-.menu-item u {
+.explorer-menu-bar .menu-item u {
     text-decoration: underline;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    font-style: inherit;
+    font-weight: inherit;
 }
 
 /* ============== BARRA DE HERRAMIENTAS ============== */
