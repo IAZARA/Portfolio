@@ -1,76 +1,174 @@
-# Portfolio CV - Ivan Agustin Zarate
+# ZarateXP - Windows XP Portfolio Simulation
+
+Una simulación interactiva de Windows XP construida con tecnologías web modernas. Este proyecto recrea la experiencia nostálgica del sistema operativo Windows XP con aplicaciones funcionales y una interfaz auténtica.
+
+## 🚀 Características
+
+- **Interfaz Auténtica**: Recreación fiel del escritorio de Windows XP usando XP.css framework
+- **Sistema de Ventanas**: Ventanas arrastrables, redimensionables, minimizables y maximizables
+- **Menú de Inicio**: Menú de inicio funcional con categorías y aplicaciones
+- **Barra de Tareas**: Barra de tareas con reloj en tiempo real y gestión de ventanas
+- **Aplicaciones Integradas**:
+  - About Me (Portfolio)
+  - My Projects
+  - Resume Viewer
+  - Contact Form
+  - Skills & Tools
+  - Command Prompt
+  - Notepad
+  - Paint
+  - Calculator
+  - Internet Explorer
+  - Media Player
+  - Minesweeper
+  - Solitaire
+  - Control Panel
+  - Recycle Bin
+
+- **Efectos CRT**: Efectos visuales nostálgicos de monitor CRT
+- **Sistema de Sonidos**: Efectos de sonido del sistema (requiere archivos de audio)
+- **Responsive Design**: Adaptado para dispositivos móviles
+
+## 🛠️ Tecnologías Utilizadas
+
+- **HTML5**: Estructura semántica
+- **CSS3**: Estilos avanzados y animaciones
+- **JavaScript ES6+**: Módulos y programación orientada a objetos
+- **XP.css**: Framework CSS para componentes de Windows XP
+- **No frameworks**: Vanilla JavaScript puro
 
 ## 📁 Estructura del Proyecto
 
 ```
-CV/
-├── start.sh                    # Script de inicio del proyecto
-├── README.md                   # Este archivo
-├── ZarateXP/                   # Proyecto principal - Portfolio estilo Windows XP
-│   ├── index.html              # Archivo principal del portfolio
-│   ├── css/                    # Estilos CSS
-│   ├── js/                     # Scripts JavaScript
-│   ├── assets/                 # Recursos del proyecto
-│   └── components/             # Componentes del proyecto
-├── docs/                       # Documentación del proyecto
-│   ├── README.md               # Documentación del proyecto ZarateXP
-│   ├── arquitectura.md         # Documentación de arquitectura
-│   └── MEJORAS_IMPLEMENTADAS.md # Lista de mejoras implementadas
-└── images/                     # Imágenes y recursos gráficos
-    ├── image.png               # Imagen general
-    ├── recicle_bin.png         # Icono de papelera
-    └── Windows XP High Resolution Icon Pack/ # Pack de iconos de Windows XP
+ZarateXP/
+├── index.html          # Archivo principal HTML
+├── css/               # Archivos de estilos
+│   ├── reset.css      # Reset de estilos
+│   ├── main.css       # Estilos principales
+│   ├── boot.css       # Pantalla de arranque
+│   ├── desktop.css    # Escritorio
+│   ├── taskbar.css    # Barra de tareas
+│   ├── startMenu.css  # Menú de inicio
+│   ├── windows.css    # Sistema de ventanas
+│   └── crtEffect.css  # Efectos CRT
+├── js/                # Módulos JavaScript
+│   ├── main.js        # Módulo principal
+│   ├── boot.js        # Gestor de arranque
+│   ├── desktop.js     # Gestor del escritorio
+│   ├── taskbar.js     # Gestor de barra de tareas
+│   ├── startMenu.js   # Gestor del menú inicio
+│   ├── windows.js     # Gestor de ventanas
+│   ├── sounds.js      # Gestor de sonidos
+│   └── apps.js        # Gestor de aplicaciones
+├── images/            # Imágenes e iconos
+│   └── icons/         # Iconos de aplicaciones
+├── sounds/            # Archivos de audio (opcional)
+└── assets/            # Otros recursos
+
 ```
 
-## 🚀 Inicio Rápido
+## 🚀 Instalación y Uso
 
-Para iniciar el proyecto, simplemente ejecuta:
+1. **Clonar el repositorio**:
+   ```bash
+   git clone https://github.com/tu-usuario/zaratexp.git
+   cd zaratexp
+   ```
 
-```bash
-./start.sh
-```
+2. **Servir localmente**:
+   
+   Opción 1 - Python:
+   ```bash
+   python3 -m http.server 8080
+   ```
+   
+   Opción 2 - Node.js:
+   ```bash
+   npx serve
+   ```
+   
+   Opción 3 - Live Server en VS Code
 
-Este script:
-- ✅ Verifica que el proyecto existe
-- ✅ Detecta tu sistema operativo
-- ✅ Abre el portfolio en tu navegador predeterminado
-- ✅ Proporciona instrucciones adicionales
+3. **Abrir en el navegador**:
+   ```
+   http://localhost:8080
+   ```
 
-## 🖥️ Sobre ZarateXP
+## 🎨 Personalización
 
-ZarateXP es un portfolio interactivo que simula completamente Windows XP, construido desde cero con:
-- HTML5
-- CSS3 (sin frameworks)
-- JavaScript vanilla
-- Sin dependencias externas
+### Agregar Nuevas Aplicaciones
 
-### Características principales:
-- 🎨 Pantalla de arranque animada
-- 🔐 Pantalla de login personalizada
-- 🖱️ Escritorio funcional con iconos
-- 📱 Diseño responsive
-- 🪟 Ventanas arrastrables y redimensionables
-- ⏰ Barra de tareas con reloj funcional
+1. Registrar la aplicación en `js/apps.js`:
+   ```javascript
+   this.registerApp({
+       id: 'mi-app',
+       name: 'Mi Aplicación',
+       icon: './images/icons/mi-app.png',
+       category: 'utilities',
+       description: 'Descripción de mi app',
+       handler: () => this.openMiApp()
+   });
+   ```
 
-## 📚 Documentación
+2. Crear el método handler:
+   ```javascript
+   openMiApp() {
+       const content = `<div>Contenido de mi app</div>`;
+       return this.createWindow('mi-app', 'Mi Aplicación', content);
+   }
+   ```
 
-Toda la documentación del proyecto se encuentra en la carpeta [`docs/`](docs/):
-- **README.md**: Documentación completa del proyecto ZarateXP
-- **arquitectura.md**: Detalles de la arquitectura del sistema
-- **MEJORAS_IMPLEMENTADAS.md**: Lista de mejoras y actualizaciones
+### Modificar Estilos
 
-## 🎨 Recursos Gráficos
+Los estilos están organizados por componentes. Para modificar:
+- Colores del tema: `css/main.css` (variables CSS)
+- Aspecto de ventanas: `css/windows.css`
+- Efectos visuales: `css/crtEffect.css`
 
-Los recursos gráficos están organizados en la carpeta [`images/`](images/):
-- Iconos de Windows XP de alta resolución
-- Imágenes del proyecto
-- Recursos gráficos adicionales
+## 📱 Soporte Móvil
 
-## 👤 Autor
+El proyecto incluye:
+- Diseño responsive
+- Detección de orientación
+- Ajustes de viewport
+- Interfaz táctil optimizada
 
-**Ivan Agustin Zarate**  
-Full Stack Developer
+## 🔊 Sonidos del Sistema
+
+Para habilitar sonidos, agrega los siguientes archivos WAV en la carpeta `sounds/`:
+- startup.wav
+- shutdown.wav
+- error.wav
+- click.wav
+- minimize.wav
+- maximize.wav
+- etc.
+
+## 🤝 Contribuciones
+
+Las contribuciones son bienvenidas. Por favor:
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
 ## 📄 Licencia
 
-MIT License
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 👤 Autor
+
+**Ivan Agustin Zarate**
+- Portfolio: [zarate.dev](https://zarate.dev)
+- GitHub: [@zarate](https://github.com/zarate)
+
+## 🙏 Agradecimientos
+
+- [XP.css](https://botoxparty.github.io/XP.css/) por el framework CSS
+- Microsoft por la inspiración de Windows XP
+- La comunidad de desarrollo web por las ideas y recursos
+
+---
+
+⭐ Si te gusta este proyecto, ¡dale una estrella en GitHub!
