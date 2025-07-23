@@ -629,7 +629,7 @@ export class AppManager {
                                 <img src="images/sobremi/sobreMi2.png" alt="Ivan programando" />
                             </div>
                             <div class="about-text">
-                                <p>La programación es mi pasión, y soy un verdadero entusiasta de la Inteligencia Artificial. Creo firmemente que la IA no viene a reemplazarnos, sino a potenciarnos. Como me gusta compartir con mi audiencia: <em>"el que abraza la tecnología, crece junto con ella"</em>. Actualmente trabajo en el Ministerio de Seguridad Nacional, un lugar que realmente amo y que me ha permitido crecer enormemente en bases de datos y desarrollo de SaaS y microservicios.</p>
+                                <p>La programación es mi pasión, y soy un verdadero entusiasta de la Inteligencia Artificial. Creo firmemente que la IA no viene a reemplazarnos, sino a potenciarnos. Como me gusta compartir con mi audiencia: <em>"el que abraza la tecnología, crece junto con ella"</em>. Actualmente trabajo en el Ministerio de Seguridad Nacional, un lugar que me ha permitido crecer enormemente en bases de datos y desarrollo de SaaS y microservicios.</p>
                             </div>
                         </div>
 
